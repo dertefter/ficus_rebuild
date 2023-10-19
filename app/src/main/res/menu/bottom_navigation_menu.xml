@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="Timetable"
+        android:id="@+id/timetableFragment"
+        android:icon="@drawable/ic_schedule"
+        android:checkable="true"/>
+    <item android:title="News"
+        android:id="@+id/newsFragment"
+        android:icon="@drawable/ic_newspaper"
+        android:checkable="true"/>
+</menu>
