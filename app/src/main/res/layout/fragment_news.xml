@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".view.fragments.NewsFragment">
+    tools:context=".view.fragments.news.NewsFragment">
     <com.google.android.material.appbar.AppBarLayout
         android:fitsSystemWindows="true"
         app:liftOnScroll="true"
@@ -21,11 +21,12 @@
             app:title="Новости" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/newsProgressBar"
+            android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:visibility="invisible" />
+            android:alpha="0"
+            />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -35,6 +36,7 @@
         android:layout_height="match_parent"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
+        android:visibility="visible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_news" />
 

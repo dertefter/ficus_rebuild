@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme"
         android:name=".Ficus">
         <activity
-            android:name=".MainActivity"
+            android:name=".view.activity.GuestActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

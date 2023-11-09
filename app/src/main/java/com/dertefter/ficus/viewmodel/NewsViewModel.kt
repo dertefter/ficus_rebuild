@@ -1,26 +1,32 @@
 package com.dertefter.ficus.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.dertefter.ficus.data.Event
+import com.dertefter.ficus.data.news.NewsItem
+import com.dertefter.ficus.repositoty.NewsRepository
 import com.dertefter.ficus.viewmodel.base.BaseViewModel
-import org.json.JSONArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class NewsViewModel : BaseViewModel() {
-
-    // Создаем лайвдату для нашего списка юзеров
-    val newsLiveData = MutableLiveData<Event<JSONArray>>()
-
-    // Получение юзеров. Обращаемся к функции  requestWithLiveData
-    // из BaseViewModel передаем нашу лайвдату и говорим,
-    // какой сетевой запрос нужно выполнить и с какими параметрами
-    // В данном случае это api.getUsers
-    // Теперь функция сама выполнит запрос и засетит нужные
-    // данные в лайвдату
-    fun getNews(page: Int? = 1) {
-        requestWithLiveData(newsLiveData) {
-            api.getNews(
-                page = page.toString()
-            )
+    private var page = 0
+    val newsLiveData = MutableLiveData<Event<List<NewsItem>>>()
+    private val newsRepository = NewsRepository()
+    fun getNews(isNeedToReplaceData: Boolean = false) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newData = newsRepository.getNews(page, isNeedToReplaceData)
+            if (newData != null) {
+                newsLiveData.postValue(Event.success(newData))
+            } else {
+                newsLiveData.postValue(Event.error(null))
+            }
         }
+        page += 1
+    }
+
+    fun getNewsLiveData(): LiveData<Event<List<NewsItem>>> {
+        return newsLiveData
     }
 }

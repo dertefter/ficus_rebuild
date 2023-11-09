@@ -7,20 +7,63 @@
 
     <fragment
         android:id="@+id/timetableFragment"
-        android:name="com.dertefter.ficus.view.fragments.TimetableFragment"
+        android:name="com.dertefter.ficus.view.fragments.timetable.TimetableFragment"
         android:label="fragment_timetable"
         tools:layout="@layout/fragment_timetable" >
         <action
             android:id="@+id/action_timetableFragment_to_newsFragment2"
-            app:destination="@id/newsFragment" />
+            app:destination="@id/newsFragment"
+            />
+        <action
+            android:id="@+id/action_timetableFragment_to_setGroupFragment"
+            app:destination="@id/setGroupFragment" />
     </fragment>
     <fragment
         android:id="@+id/newsFragment"
-        android:name="com.dertefter.ficus.view.fragments.NewsFragment"
+        android:name="com.dertefter.ficus.view.fragments.news.NewsFragment"
         android:label="fragment_news"
         tools:layout="@layout/fragment_news" >
         <action
             android:id="@+id/action_newsFragment_to_timetableFragment"
+            app:destination="@id/timetableFragment"
+            />
+        <action
+            android:id="@+id/action_newsFragment_to_readNewsFragment"
+            app:destination="@id/readNewsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/readNewsFragment"
+        android:name="com.dertefter.ficus.view.fragments.news.ReadNewsFragment"
+        android:label="fragment_read_news"
+        tools:layout="@layout/fragment_read_news" >
+        <action
+            android:id="@+id/action_readNewsFragment_to_newsFragment"
+            app:destination="@id/newsFragment" />
+        <argument
+            android:name="transitionImageName"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="imageUrl"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="newsid"
+            app:argType="string" />
+        <argument
+            android:name="tag"
+            app:argType="string" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/setGroupFragment"
+        android:name="com.dertefter.ficus.view.fragments.timetable.SearchGroupFragment"
+        android:label="SetGroupFragment" >
+        <action
+            android:id="@+id/action_setGroupFragment_to_timetableFragment"
             app:destination="@id/timetableFragment" />
     </fragment>
 

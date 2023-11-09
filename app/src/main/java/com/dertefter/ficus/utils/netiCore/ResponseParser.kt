@@ -1,60 +1,175 @@
 package com.dertefter.ficus.utils.netiCore
 
-import android.animation.ObjectAnimator
-import android.content.Intent
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import com.dertefter.ficus.R
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import com.squareup.picasso.Picasso
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.dertefter.ficus.data.news.NewsContent
+import com.dertefter.ficus.data.news.NewsItem
+import com.dertefter.ficus.data.timetable.Days
+import com.dertefter.ficus.data.timetable.GroupItem
+import com.dertefter.ficus.data.timetable.Lesson
+import com.dertefter.ficus.data.timetable.Timetable
+import com.dertefter.ficus.data.timetable.Week
 import okhttp3.ResponseBody
-import org.json.JSONArray
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import kotlin.reflect.typeOf
 
 class ResponseParser {
-    fun parseNews(input: ResponseBody?): JSONArray? {
+    fun getQueryString(input: String): String? {
+        val regex = Regex("\\?(.+)")
+        val matchResult = regex.find(input)
 
+        return matchResult?.groups?.get(1)?.value
+    }
+    fun parseNews(input: ResponseBody?): List<NewsItem>? {
+        val outputNewsList = mutableListOf<NewsItem>()
         try{
-            val outputJsonArray = JSONArray()
             val jsonString = input!!.string()
             val jsonObject = JSONObject(jsonString)
+            Log.e("ResponseParser", jsonObject.toString())
             val items = jsonObject.getString("items")
-            Log.e("ResponseParserJJJJ", jsonObject.toString())
+            val haveMore = jsonObject.getBoolean("haveMore")
             val doc: Document = Jsoup.parse(items.replace("\n", "").replace("\t", ""))
             val news_items = doc.body().select("a")
             for (it in news_items){
                 var imageUrl: String? = null
                 if (it.attr("style").toString().replace("background-image: url(", "").replace(");", "").replace("//", "/") != ""){
                     imageUrl = "https://www.nstu.ru/" + it.attr("style").toString().replace("background-image: url(", "").replace(");", "").replace("//", "/")
-
                 }
-
-
                 val title = it.select("div.main-events__item-title").text().toString()
                 val tag = it.select("div.main-events__item-tags").text().toString()
                 val date = it.select("div.main-events__item-date").text().toString()
-                val link = "https://www.nstu.ru/" + it.attr("href")
-                val item: org.json.JSONObject = org.json.JSONObject()
-                item.put("title", title)
-                item.put("tag", tag)
-                item.put("date", date)
-                item.put("imageUrl", imageUrl)
-                item.put("link", link)
-                outputJsonArray.put(item)
+                val link = it.attr("href")
+                val newsid = getQueryString(link)!!.replace("idnews=", "")
+                val dataid  = it.attr("data-type")
+                if (dataid == "video" || dataid == "photo"){
+                    continue
+                }
+
+                val item = NewsItem(newsid, title, date, imageUrl, tag)
+
+                outputNewsList.add(item)
             }
-            return outputJsonArray
+            return outputNewsList
         } catch (e: Exception) {
             Log.e("ResponseParser", e.stackTraceToString().toString())
             return null
         }
+    }
+
+    fun parseTimetable(input: ResponseBody?): Timetable? {
+        try{
+            val output = Timetable()
+            val pretty = input?.string()!!
+            val daysItems = mutableListOf<Days>()
+            val doc: Document = Jsoup.parse(pretty)
+            val table_body = doc.body().select("div.schedule__table-body").first()
+            val table_days = table_body?.select("> *")
+            Log.e("date", table_body.toString())
+            if (table_days != null) {
+                for (it in table_days){
+                    val date = it.select("div.schedule__table-day").text().toString()
+                    val dayItem = Days(date)
+                    val lessonsItems = mutableListOf<Lesson>()
+                    val cell = it.select("div.schedule__table-cell")[1]
+                    val lessons = cell.select("> *")
+                    for (l in lessons){
+                        val time = l.select("div.schedule__table-time").text()
+                        val items = l.select("div.schedule__table-item")
+                        for (t in items){
+                            var lesson_title = t.ownText().replace("·", "").replace(",", "")
+                            val type = t.select("span.schedule__table-typework").first()?.ownText()
+                            val aud = t.parent()?.parent()?.select("div.schedule__table-class")?.text()
+                            var person = ""
+                            for (p in t.select("a")){
+                                person = person + p.text() + "\n"
+                            }
+                            if (person != ""){
+                                person = person.substring(0, person.length - 1)
+                            }
+                            if (lesson_title != ""){
+                                val lesson_item = Lesson(lesson_title, time, type, aud, person, null)
+                                lessonsItems.add(lesson_item)
+
+                            }
+
+
+                        }
+                    }
+                    dayItem.lessons = lessonsItems
+                    daysItems.add(dayItem)
+                }
+            }
+            Log.e("dayitems", daysItems.toString())
+            output.days = daysItems
+            return output
+        } catch (e: Exception) {
+            Log.e("ResponseParser", e.stackTraceToString().toString())
+            return null
+        }
+    }
+
+    fun parseWeeks(input: ResponseBody?): List<Week>?{
+        try{
+            val pretty = input!!.string()
+            val doc: Document = Jsoup.parse(pretty)
+            val weeks_content = doc.select("div.schedule__weeks-content")
+            val weeks_a = weeks_content.select("a")
+            val week_label_today = doc.select("span.schedule__title-label").text()
+            val output = mutableListOf<Week>()
+            for (it in weeks_a){
+                val title = it.text()
+                val query = it.attr("data-week")
+                var isToday = false
+                if (week_label_today.contains(query)){
+                    isToday = true
+                }
+                val week_item = Week(title, isToday, query)
+                output.add(week_item)
+            }
+            return output
+        }catch (e: Exception) {
+            Log.e("ResponseParser", e.stackTraceToString().toString())
+            return null
+        }
+
+    }
+    fun parseNewsMore(input: ResponseBody?): NewsContent? {
+        try {
+            val pretty = input!!.string().toString()
+            val doc: Document = Jsoup.parse(pretty)
+            val htmlContent = doc.body().select("div.row")[1].toString()
+            val htmlContacts = doc.body().select("div.aside-events__contacts").toString()
+            return NewsContent(htmlContent, htmlContacts)
+            //displayHtml(s.toString())
+        } catch (e: Exception) {
+            Log.e("ResponseParser", e.stackTraceToString().toString())
+            return null
+        }
+    }
+
+    fun parseGroups(input: ResponseBody?): List<GroupItem>? {
+        val outputGroupList = mutableListOf<GroupItem>()
+
+        val jsonString = input!!.string()
+        val jsonObject = JSONObject(jsonString)
+        val items = jsonObject.getString("items")
+
+        val doc: Document = Jsoup.parse(items.replace("\n", "").replace("\t", ""))
+        val available_group_items = doc.body().select("a")
+        val unavailable_group_items = doc.body().select("span")
+
+        for (it in available_group_items){
+            val title = it.text().toString()
+            val item = GroupItem(title, false, true)
+            outputGroupList.add(item)
+        }
+        for (it in unavailable_group_items){
+            val title = it.text().toString()
+            val item = GroupItem(title, false, false)
+            outputGroupList.add(item)
+        }
+        return outputGroupList
+
     }
 }

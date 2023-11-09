@@ -6,44 +6,114 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.dertefter.ficus.R
+import com.dertefter.ficus.data.news.NewsItem
+import com.dertefter.ficus.view.fragments.news.NewsFragment
 import com.squareup.picasso.Picasso
-import org.json.JSONArray
-import org.json.JSONObject
 
-class NewsListAdapter(private val newsList: JSONArray?) :
-    RecyclerView.Adapter<NewsListAdapter.NewsViewHolder>() {
+class NewsListAdapter(val fragment: NewsFragment) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private var newsList = mutableListOf<NewsItem>()
+    var isError = false
+    fun setNewsList(newNewsList: List<NewsItem>?){
+        if (newNewsList == null){
+            return
+        }
+        newsList = newNewsList.toMutableList()
+        notifyDataSetChanged()
+    }
 
     class NewsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title = itemView.findViewById<TextView>(R.id.title_news)
-        val tag = itemView.findViewById<TextView>(R.id.tag_news)
-        val date = itemView.findViewById<TextView>(R.id.date_news)
-        val image = itemView.findViewById<ImageView>(R.id.image_news)
+        val title: TextView = itemView.findViewById(R.id.title_news)
+        val tag: TextView = itemView.findViewById(R.id.tag_news)
+        val date: TextView = itemView.findViewById(R.id.date_news)
+        val image: ImageView = itemView.findViewById(R.id.image_news)
+        var newsid: String = ""
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_news, parent, false)
-        return NewsViewHolder(itemView)
+    class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
     }
 
-    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
-        val currentItem = newsList?.getJSONObject(position)!!
-        holder.title.text = (currentItem).getString("title")
-        holder.tag.text = (currentItem).getString("tag")
-        holder.date.text = (currentItem).getString("date")
-        if ((currentItem).has("imageUrl")){
-            Picasso.get().load((currentItem).getString("imageUrl")).into(holder.image)
-            holder.image.visibility = View.VISIBLE
+    class ErrorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val retryButton: TextView = itemView.findViewById(R.id.retry_button)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == 0){
+            val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_news, parent, false)
+            NewsViewHolder(itemView)
+        } else if (viewType == 2){
+            val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_error, parent, false)
+            ErrorViewHolder(itemView)
+        } else{
+            val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
+            LoadingViewHolder(itemView)
+        }
+
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is NewsViewHolder){
+            val currentItem = newsList[position]
+            holder.title.text = currentItem.title
+            holder.tag.text = currentItem.tag
+            holder.date.text = currentItem.date
+            holder.newsid = currentItem.newsid
+            if (currentItem.imageUrl != null){
+                Picasso.get().load(currentItem.imageUrl).resize(600,400).centerCrop().into(holder.image)
+                holder.image.visibility = View.VISIBLE
+            }else{
+                holder.image.visibility = View.GONE
+            }
+            ViewCompat.setTransitionName(holder.itemView, "image$position")
+            holder.itemView.setOnClickListener {
+                fragment.readNews(holder.itemView,
+                    "image$position",
+                    currentItem.title,
+                    holder.newsid,
+                    currentItem.date,
+                    currentItem.imageUrl)
+            }
+        } else if (holder is LoadingViewHolder){
+            if (isError){
+                holder.itemView.visibility = View.GONE
+                holder.itemView.layoutParams = RecyclerView.LayoutParams(0, 0)
+            }else{
+                holder.itemView.visibility = View.VISIBLE
+                holder.itemView.layoutParams =
+                    RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+            }
+        }else if (holder is ErrorViewHolder){
+            holder.retryButton.setOnClickListener {
+                fragment.getNews()
+            }
+        }
+
+
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        Log.e("getItemViewType", "$position $newsList")
+        if (position == newsList.size){
+            return 1
         }else{
-            holder.image.visibility = View.GONE
+            if (newsList[position].error != null && newsList[position].error != ""){
+                isError = true
+                return 2
+            }else{
+                isError = false
+            }
+            return 0
         }
     }
 
     override fun getItemCount(): Int {
-        if (newsList == null){
-            return 0
-        }
-        return newsList?.length()!!
+        return newsList.size + 1
     }
+
 }
