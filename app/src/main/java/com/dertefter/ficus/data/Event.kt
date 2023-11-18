@@ -1,6 +1,7 @@
 package com.dertefter.ficus.data
 
 import com.dertefter.ficus.data.errors.Error
+import com.dertefter.ficus.data.timetable.Week
 
 data class Event<out T>(val status: Status, val data: T?, val error: Error?) {
 
@@ -9,7 +10,7 @@ data class Event<out T>(val status: Status, val data: T?, val error: Error?) {
             return Event(Status.LOADING, null, null)
         }
 
-        fun <T> success(data: T?): Event<T> {
+        fun <T> success(data: T?): Event<T & Any> {
             return Event(Status.SUCCESS, data, null)
         }
 

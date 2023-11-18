@@ -31,7 +31,7 @@
             android:layout_height="160dp"
             android:background="?attr/colorSurface"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:statusBarScrim="@android:color/transparent">
+            app:statusBarScrim="?attr/colorSurfaceContainer">
 
             <ImageView
                 android:id="@+id/backgroundNews"
@@ -44,12 +44,23 @@
                 app:layout_collapseMode="parallax"
                 app:srcCompat="@drawable/ic_launcher_background" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/topAppBar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:navigationIcon="@drawable/arrow_back_w_shape" />
+            <Button
+                android:id="@+id/share_button"
+                style="?attr/materialIconButtonFilledStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_margin="8dp"
+                app:icon="@drawable/share" />
+
+            <Button
+                android:id="@+id/back_button"
+                style="?attr/materialIconButtonFilledTonalStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:icon="@drawable/arrow_back" />
+
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progressBar"
@@ -62,6 +73,18 @@
                 app:layout_collapseMode="pin" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorSurfaceContainer"
+            android:fontFamily="sans-serif-medium"
+            android:padding="12dp"
+            android:text="ттттт\nkgkgkgojgjgli\njvihfdhbdfhbdfhibdfhbdfhibdfhibdfhibhi"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="?attr/colorPrimary" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -83,17 +106,6 @@
             android:paddingBottom="24dp">
 
             <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:background="?attr/colorSurfaceContainer"
-                android:fontFamily="sans-serif-medium"
-                android:text="ттттт\nkgkgkgojgjgli\njvihfdhbdfhbdfhibdfhbdfhibdfhibdfhibhi"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="?attr/colorOnSurface" />
-
-            <TextView
                 android:id="@+id/news_content_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -106,6 +118,7 @@
                 style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="100dp"
                 app:cardCornerRadius="@dimen/corner_cadius"
                 app:cardUseCompatPadding="false"
                 app:contentPadding="12dp">

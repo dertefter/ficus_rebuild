@@ -1,23 +1,31 @@
 package com.dertefter.ficus.view.fragments.news
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
-import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.text.HtmlCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.TransitionInflater
 import com.dertefter.ficus.R
-import com.dertefter.ficus.data.news.NewsContent
 import com.dertefter.ficus.data.Status
+import com.dertefter.ficus.data.news.NewsContent
 import com.dertefter.ficus.databinding.FragmentReadNewsBinding
 import com.dertefter.ficus.utils.ImageGetter
 import com.dertefter.ficus.utils.ViewUtils
 import com.dertefter.ficus.viewmodel.ReadNewsViewModel
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
 import com.squareup.picasso.Picasso
 
-class ReadNewsFragment : Fragment(R.layout.fragment_read_news) {
+
+class ReadNewsFragment : Fragment() {
 
     var binding: FragmentReadNewsBinding? = null
     private lateinit var transitionImageName: String
@@ -30,6 +38,21 @@ class ReadNewsFragment : Fragment(R.layout.fragment_read_news) {
 
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        var color = ReadNewsFragmentArgs.fromBundle(requireArguments()).color
+        val context: Context = DynamicColors.wrapContextIfAvailable(
+            requireContext(),
+            DynamicColorsOptions.Builder()
+                .setContentBasedSource(color)
+                .build()
+        )
+
+        return layoutInflater.cloneInContext(context).inflate(R.layout.fragment_read_news, container, false)
+    }
     fun getNews(newsid: String){
         readNewsViewModel.getNewsMore(newsid)
     }
@@ -53,9 +76,8 @@ class ReadNewsFragment : Fragment(R.layout.fragment_read_news) {
         setupNestedScrollView()
         setupTransitionNames()
 
-
-
     }
+
 
     private fun setupTransitionNames() {
         binding?.root?.transitionName = transitionImageName
@@ -84,14 +106,24 @@ class ReadNewsFragment : Fragment(R.layout.fragment_read_news) {
         binding?.scrollUpFab?.hide()
     }
     fun setupAppBar(){
-        binding?.topAppBar?.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
         val imageUrl = ReadNewsFragmentArgs.fromBundle(requireArguments()).imageUrl
         if (imageUrl != null){
             Picasso.get().load(imageUrl).resize(600,400).centerCrop().into(binding?.backgroundNews)
         }else{
-            binding?.backgroundNews?.visibility = View.INVISIBLE
+            binding?.backgroundNews?.visibility = View.GONE
+        }
+        binding?.backButton?.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+        binding?.shareButton?.setOnClickListener {
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, "https://nstu.ru/news/news_more?idnews=${ReadNewsFragmentArgs.fromBundle(requireArguments()).newsid}")
+                type = "text/plain"
+            }
+
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            startActivity(shareIntent)
         }
         binding?.title?.text = ReadNewsFragmentArgs.fromBundle(requireArguments()).title
     }

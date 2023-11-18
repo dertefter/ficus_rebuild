@@ -30,9 +30,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="12dp"
-            android:layout_marginBottom="3dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            android:layout_marginBottom="8dp"
+            android:backgroundTintMode="screen"
+            app:cardBackgroundColor="?attr/colorSecondaryContainer"
             app:cardCornerRadius="48dp">
 
             <LinearLayout
@@ -49,7 +51,7 @@
                     android:layout_height="48dp"
                     android:layout_weight="0"
                     android:padding="10dp"
-                    android:tint="?attr/colorOnSurface"
+                    app:tint="?attr/colorOnSecondaryContainer"
                     app:srcCompat="@drawable/search" />
 
                 <EditText
@@ -61,13 +63,15 @@
                     android:ems="10"
                     android:hint="Введите название группы..."
                     android:inputType="text"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textColorHint="?attr/colorSecondary" />
 
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 
     </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"

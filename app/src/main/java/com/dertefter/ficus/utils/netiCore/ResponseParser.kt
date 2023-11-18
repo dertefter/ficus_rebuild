@@ -3,7 +3,7 @@ package com.dertefter.ficus.utils.netiCore
 import android.util.Log
 import com.dertefter.ficus.data.news.NewsContent
 import com.dertefter.ficus.data.news.NewsItem
-import com.dertefter.ficus.data.timetable.Days
+import com.dertefter.ficus.data.timetable.Day
 import com.dertefter.ficus.data.timetable.GroupItem
 import com.dertefter.ficus.data.timetable.Lesson
 import com.dertefter.ficus.data.timetable.Timetable
@@ -12,7 +12,6 @@ import okhttp3.ResponseBody
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import kotlin.reflect.typeOf
 
 class ResponseParser {
     fun getQueryString(input: String): String? {
@@ -40,13 +39,14 @@ class ResponseParser {
                 val tag = it.select("div.main-events__item-tags").text().toString()
                 val date = it.select("div.main-events__item-date").text().toString()
                 val link = it.attr("href")
+                val type = it.select("div.main-events__item-type").text().toString()
                 val newsid = getQueryString(link)!!.replace("idnews=", "")
                 val dataid  = it.attr("data-type")
                 if (dataid == "video" || dataid == "photo"){
                     continue
                 }
 
-                val item = NewsItem(newsid, title, date, imageUrl, tag)
+                val item = NewsItem(newsid, title, date, imageUrl, tag, type)
 
                 outputNewsList.add(item)
             }
@@ -61,15 +61,16 @@ class ResponseParser {
         try{
             val output = Timetable()
             val pretty = input?.string()!!
-            val daysItems = mutableListOf<Days>()
+            val dayItems = mutableListOf<Day>()
             val doc: Document = Jsoup.parse(pretty)
             val table_body = doc.body().select("div.schedule__table-body").first()
             val table_days = table_body?.select("> *")
-            Log.e("date", table_body.toString())
+            Log.e("date", table_days.toString())
             if (table_days != null) {
                 for (it in table_days){
-                    val date = it.select("div.schedule__table-day").text().toString()
-                    val dayItem = Days(date)
+                    val title = it.select("div.schedule__table-day").first()?.ownText().toString()
+                    val date = it.select("span.schedule__table-date").text()
+                    val dayItem = Day(title, date)
                     val lessonsItems = mutableListOf<Lesson>()
                     val cell = it.select("div.schedule__table-cell")[1]
                     val lessons = cell.select("> *")
@@ -97,11 +98,10 @@ class ResponseParser {
                         }
                     }
                     dayItem.lessons = lessonsItems
-                    daysItems.add(dayItem)
+                    dayItems.add(dayItem)
                 }
             }
-            Log.e("dayitems", daysItems.toString())
-            output.days = daysItems
+            output.days = dayItems
             return output
         } catch (e: Exception) {
             Log.e("ResponseParser", e.stackTraceToString().toString())
@@ -124,7 +124,7 @@ class ResponseParser {
                 if (week_label_today.contains(query)){
                     isToday = true
                 }
-                val week_item = Week(title, isToday, query)
+                val week_item = Week(title, query, isToday)
                 output.add(week_item)
             }
             return output

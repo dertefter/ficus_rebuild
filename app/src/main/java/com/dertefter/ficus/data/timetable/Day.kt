@@ -4,6 +4,8 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Timetable(
-    var days: List<Day>? = null
+data class Day(
+    val title: String,
+    var date: String?,
+    var lessons: List<Lesson>? = null
 ): Parcelable

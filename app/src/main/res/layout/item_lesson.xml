@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
+    style="@style/Widget.Material3.CardView.Filled"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="auto"
+    android:foreground="?attr/selectableItemBackground"
+
+    app:cardBackgroundColor="?attr/colorSecondaryContainer"
+    app:cardCornerRadius="@dimen/corner_cadius"
+    app:contentPadding="12dp"
+    tools:context=".view.activity.GuestActivity">
+
+    <TextView
+        android:id="@+id/type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:background="@drawable/rounded_background"
+        android:backgroundTint="?attr/colorSecondary"
+        android:padding="4dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="type"
+        android:textColor="?attr/colorOnSecondary" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:divider="@drawable/divider"
+        android:orientation="vertical"
+        android:showDividers="middle">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="title"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:divider="@drawable/divider_horizontal"
+            android:orientation="horizontal"
+            android:showDividers="middle">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:srcCompat="@drawable/ic_schedule"
+                app:tint="?attr/colorOnSecondaryContainer" />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="time"
+                android:textColor="?attr/colorOnSecondaryContainer" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:divider="@drawable/divider_horizontal"
+            android:orientation="horizontal"
+            android:showDividers="middle">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:srcCompat="@drawable/distance"
+                app:tint="?attr/colorOnSecondaryContainer" />
+
+            <TextView
+                android:id="@+id/aud"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="aud"
+                android:textColor="?attr/colorOnSecondaryContainer" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:divider="@drawable/divider_horizontal"
+            android:orientation="horizontal"
+            android:showDividers="middle">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:srcCompat="@drawable/person"
+                app:tint="?attr/colorOnSecondaryContainer" />
+
+            <TextView
+                android:id="@+id/person"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="person"
+                android:textColor="?attr/colorOnSecondaryContainer" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

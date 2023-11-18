@@ -1,16 +1,24 @@
 package com.dertefter.ficus.view.adapters
 
+import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.dertefter.ficus.R
 import com.dertefter.ficus.data.news.NewsItem
+import com.dertefter.ficus.utils.ViewUtils
 import com.dertefter.ficus.view.fragments.news.NewsFragment
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 
 class NewsListAdapter(val fragment: NewsFragment) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -29,7 +37,9 @@ class NewsListAdapter(val fragment: NewsFragment) : RecyclerView.Adapter<Recycle
         val tag: TextView = itemView.findViewById(R.id.tag_news)
         val date: TextView = itemView.findViewById(R.id.date_news)
         val image: ImageView = itemView.findViewById(R.id.image_news)
+        val type: TextView = itemView.findViewById(R.id.type_news)
         var newsid: String = ""
+        var color = Color.GRAY
     }
 
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -61,11 +71,27 @@ class NewsListAdapter(val fragment: NewsFragment) : RecyclerView.Adapter<Recycle
             holder.tag.text = currentItem.tag
             holder.date.text = currentItem.date
             holder.newsid = currentItem.newsid
+            holder.type.text = currentItem.type
             if (currentItem.imageUrl != null){
-                Picasso.get().load(currentItem.imageUrl).resize(600,400).centerCrop().into(holder.image)
+                Picasso.get().load(currentItem.imageUrl).into(holder.image)
+                Picasso.get()
+                    .load(currentItem.imageUrl)
+                    .resize(600,400)
+                    .centerCrop()
+                    .into(holder.image, object : Callback {
+                        override fun onSuccess() {
+                            holder.color = ViewUtils().getDominantColor(holder.image.drawable.toBitmap())
+                        }
+
+                        override fun onError(ex: Exception) {
+
+                        }
+                    })
+
                 holder.image.visibility = View.VISIBLE
             }else{
                 holder.image.visibility = View.GONE
+                holder.color = Color.GRAY
             }
             ViewCompat.setTransitionName(holder.itemView, "image$position")
             holder.itemView.setOnClickListener {
@@ -74,7 +100,8 @@ class NewsListAdapter(val fragment: NewsFragment) : RecyclerView.Adapter<Recycle
                     currentItem.title,
                     holder.newsid,
                     currentItem.date,
-                    currentItem.imageUrl)
+                    currentItem.imageUrl,
+                    holder.color)
             }
         } else if (holder is LoadingViewHolder){
             if (isError){

@@ -6,5 +6,6 @@ data class NewsItem(
     val date: String,
     val imageUrl: String?,
     val tag: String,
+    val type: String,
     var error: String? = null
 )

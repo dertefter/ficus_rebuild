@@ -34,7 +34,7 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
         newsViewModel.getNews()
     }
 
-    fun readNews(imageView: View, transitionImageName: String, title: String, newsid: String, date: String, imageUrl: String?){
+    fun readNews(imageView: View, transitionImageName: String, title: String, newsid: String, date: String, imageUrl: String?, color: Int){
         val extras = FragmentNavigatorExtras(
             imageView to transitionImageName,
         )
@@ -44,7 +44,9 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
                 title,
                 imageUrl,
                 newsid,
-                date
+                date,
+                color
+
             )
         findNavController().navigate(direction, extras)
     }

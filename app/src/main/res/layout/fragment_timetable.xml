@@ -19,13 +19,15 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:menu="@menu/appbar_timetable_menu"
             app:title="Расписание занятий" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/weeks_tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="scrollable"/>
+            android:background="@android:color/transparent"
+            app:tabMode="scrollable" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progressBar"

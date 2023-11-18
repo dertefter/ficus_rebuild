@@ -56,6 +56,10 @@
         <argument
             android:name="tag"
             app:argType="string" />
+        <argument
+            android:name="color"
+            app:argType="integer"
+            android:defaultValue="0" />
 
     </fragment>
     <fragment

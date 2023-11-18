@@ -20,5 +20,5 @@ interface GuestApi {
     suspend fun getGroupList(@Query("query") group: String): Response<ResponseBody>
 
     @GET("studies/schedule/schedule_classes/schedule")
-    suspend fun getTimetable(@Query("group") group: String, @Query("group") week: String?): Response<ResponseBody>
+    suspend fun getTimetable(@Query("group") group: String, @Query("week") week: String?): Response<ResponseBody>
 }

@@ -19,7 +19,7 @@ class SearchGroupViewModel : BaseViewModel() {
     fun getGroups(searchQuery: String){
         liveData.postValue(Event.loading())
         viewModelScope.launch(Dispatchers.IO) {
-            val data = timetableRepository.getGroups(searchQuery)
+            val data = timetableRepository.loadGroups(searchQuery)
             Log.e("data", data.toString())
             if (data != null) {
                 if (data.isEmpty()){
