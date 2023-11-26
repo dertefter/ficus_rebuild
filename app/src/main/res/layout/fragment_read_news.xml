@@ -119,6 +119,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="100dp"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="@dimen/corner_cadius"
                 app:cardUseCompatPadding="false"
                 app:contentPadding="12dp">

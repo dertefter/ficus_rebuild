@@ -38,11 +38,14 @@
             @android:color/transparent
         </item>
 
+
+
         <!-- Optional: set for a light status bar with dark content. -->
         <item name="android:windowLightStatusBar">
             true
         </item>
         <item name="actionOverflowMenuStyle">@style/popupOverflowMenu</item>
+
     </style>
 
     <style name="popupOverflowMenu" parent="@style/Widget.MaterialComponents.PopupMenu.Overflow">

@@ -2,6 +2,7 @@ package com.dertefter.ficus.view.adapters
 
 import android.graphics.Color
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -88,6 +89,20 @@ class TimetableWeekAdapter(val fragment: TimetableWeekContainerFragment) : Recyc
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is DayViewHolder){
             val currentItem = listOfAny[position] as Day
+            if (currentItem.today){
+                val typedValue = TypedValue()
+                val theme = fragment.requireContext().theme
+                theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
+                val color = typedValue.data
+                holder.title.setTextColor(color)
+                fragment.scrollToPosition(position)
+            }else{
+                val typedValue = TypedValue()
+                val theme = fragment.requireContext().theme
+                theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+                val color = typedValue.data
+                holder.title.setTextColor(color)
+            }
             holder.title.text = currentItem.title
         } else if (holder is LessonViewHolder){
             val currentItem = listOfAny[position] as Lesson

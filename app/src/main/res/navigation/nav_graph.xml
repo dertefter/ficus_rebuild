@@ -11,10 +11,6 @@
         android:label="fragment_timetable"
         tools:layout="@layout/fragment_timetable" >
         <action
-            android:id="@+id/action_timetableFragment_to_newsFragment2"
-            app:destination="@id/newsFragment"
-            />
-        <action
             android:id="@+id/action_timetableFragment_to_setGroupFragment"
             app:destination="@id/setGroupFragment" />
     </fragment>
@@ -23,10 +19,6 @@
         android:name="com.dertefter.ficus.view.fragments.news.NewsFragment"
         android:label="fragment_news"
         tools:layout="@layout/fragment_news" >
-        <action
-            android:id="@+id/action_newsFragment_to_timetableFragment"
-            app:destination="@id/timetableFragment"
-            />
         <action
             android:id="@+id/action_newsFragment_to_readNewsFragment"
             app:destination="@id/readNewsFragment" />
@@ -70,5 +62,18 @@
             android:id="@+id/action_setGroupFragment_to_timetableFragment"
             app:destination="@id/timetableFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.dertefter.ficus.view.fragments.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_authFragment"
+            app:destination="@id/authFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="com.dertefter.ficus.view.fragments.auth.AuthFragment"
+        android:label="AuthFragment" />
 
 </navigation>

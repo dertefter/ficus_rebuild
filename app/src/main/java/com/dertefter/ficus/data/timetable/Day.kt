@@ -7,5 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class Day(
     val title: String,
     var date: String?,
-    var lessons: List<Lesson>? = null
+    var lessons: List<Lesson>? = null,
+    var today: Boolean = false
 ): Parcelable

@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="Timetable"
+    <item android:title="Расписание"
         android:id="@+id/timetableFragment"
         android:icon="@drawable/ic_schedule"
         android:checkable="true"/>
-    <item android:title="News"
+    <item android:title="Новости"
         android:id="@+id/newsFragment"
         android:icon="@drawable/ic_newspaper"
+        android:checkable="true"/>
+    <item android:title="Профиль"
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/grid_view"
         android:checkable="true"/>
 </menu>

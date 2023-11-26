@@ -13,6 +13,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
@@ -23,13 +24,15 @@ import com.dertefter.ficus.databinding.FragmentNewsBinding
 import com.dertefter.ficus.utils.ViewUtils
 import com.dertefter.ficus.view.adapters.NewsListAdapter
 import com.dertefter.ficus.viewmodel.NewsViewModel
+import com.google.android.material.color.MaterialColors
+import com.google.android.material.shape.MaterialShapeDrawable
 
 class NewsFragment : Fragment(R.layout.fragment_news) {
     private lateinit var newsViewModel: NewsViewModel
     private lateinit var binding: FragmentNewsBinding
     var isLoadingData = false
     val newsListAdapter: NewsListAdapter = NewsListAdapter(this)
-
+    var columnCount: Int = 1
     fun getNews(){
         newsViewModel.getNews()
     }
@@ -54,12 +57,17 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        columnCount = resources.getInteger(R.integer.column_count)
+
         binding = FragmentNewsBinding.bind(view)
         newsViewModel = ViewModelProvider(this)[NewsViewModel::class.java]
         observeGetPosts()
         if (binding.newsRecyclerView.adapter?.itemCount == 0) {
             getNews()
         }
+        binding.newsTopAppBarLayout.statusBarForeground =
+            MaterialShapeDrawable.createWithElevationOverlay(context)
+
 
         setupRecyclerView()
 
@@ -78,19 +86,24 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
     private fun setupRecyclerView(){
         val recyclerView: RecyclerView = binding.newsRecyclerView
         recyclerView.adapter = newsListAdapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), columnCount)
         recyclerView.setOnScrollChangeListener { view, i, i2, i3, i4 ->
-            val scrollingSpeed = i4 - i2
-            val scrollingDown = i4 < i2
             val lastViewedItemPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
             Log.e("scrollingSpeed", lastViewedItemPosition.toString() + " " + newsListAdapter.itemCount)
             if ((lastViewedItemPosition + 1 == newsListAdapter.itemCount && !isLoadingData)) {
                 getNews()
             }
         }
-        val itemDecorator = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-        itemDecorator.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
-        recyclerView.addItemDecoration(itemDecorator)
+        val verticalItemDecorator = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        verticalItemDecorator.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
+        val horizontalItemDecorator = DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL)
+        horizontalItemDecorator.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider_horizontal)!!)
+        if (columnCount > 1){
+            recyclerView.addItemDecoration(verticalItemDecorator)
+            recyclerView.addItemDecoration(horizontalItemDecorator)
+        }else{
+            recyclerView.addItemDecoration(verticalItemDecorator)
+        }
         recyclerView.doOnPreDraw {
             startPostponedEnterTransition()
         }
@@ -109,18 +122,15 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
 
     private fun onError(error: List<NewsItem>?) {
         newsListAdapter.setNewsList(error)
-        ViewUtils().hideView(binding.progressBar)
         isLoadingData = false
     }
 
     private fun onSuccess(data: List<NewsItem>?) {
-        ViewUtils().hideView(binding.progressBar)
         newsListAdapter.setNewsList(data)
         isLoadingData = false
     }
 
     private fun onLoading() {
-        ViewUtils().showView(binding.progressBar)
         isLoadingData = true
     }
 

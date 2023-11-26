@@ -1,32 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="false"
     tools:context=".view.fragments.news.NewsFragment">
+
     <com.google.android.material.appbar.AppBarLayout
-        android:fitsSystemWindows="true"
-        app:liftOnScroll="true"
         android:id="@+id/newsTopAppBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:overScrollMode="always"
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@+id/news_recycler_view">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/newsTopAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
+            app:layout_scrollEffect="none"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:title="Новости" />
-
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:alpha="0"
-            />
 
     </com.google.android.material.appbar.AppBarLayout>
 

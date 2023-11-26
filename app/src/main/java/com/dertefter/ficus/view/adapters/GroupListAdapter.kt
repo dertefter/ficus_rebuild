@@ -11,11 +11,20 @@ import com.dertefter.ficus.view.fragments.timetable.SearchGroupFragment
 
 class GroupListAdapter(val fragment: SearchGroupFragment) : RecyclerView.Adapter<GroupListAdapter.GroupViewHolder>() {
     private var groupList = mutableListOf<GroupItem>()
+    var individualEnabled = false
+    fun addIndividual(){
+        groupList.add(0, GroupItem("Индивидуальное"))
+        notifyDataSetChanged()
+    }
+
     fun setGroupList(newNewsList: List<GroupItem>?){
         if (newNewsList.isNullOrEmpty()){
             groupList.clear()
         }else{
             groupList = newNewsList.toMutableList()
+        }
+        if (individualEnabled){
+            addIndividual()
         }
         notifyDataSetChanged()
     }
@@ -36,7 +45,12 @@ class GroupListAdapter(val fragment: SearchGroupFragment) : RecyclerView.Adapter
         holder.title.text = currentItem.title
         if (currentItem.isAvailable){
             holder.itemView.setOnClickListener {
-                fragment.setGroup(currentItem.title)
+                if (currentItem.title == "Индивидуальное"){
+                    fragment.setGroup("individual")
+                }else{
+                    fragment.setGroup(currentItem.title)
+                }
+
             }
         }else{
             holder.itemView.setOnClickListener {

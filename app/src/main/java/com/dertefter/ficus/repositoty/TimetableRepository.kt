@@ -6,18 +6,21 @@ import com.dertefter.ficus.data.timetable.Timetable
 import com.dertefter.ficus.data.timetable.Week
 import com.dertefter.ficus.repositoty.api.guest.GuestApi
 import com.dertefter.ficus.repositoty.api.guest.NetworkService
+import com.dertefter.ficus.repositoty.api.student_study.AuthApi
+import com.dertefter.ficus.repositoty.api.student_study.AuthNetworkService
 import com.dertefter.ficus.repositoty.local.AppPreferences
 import com.dertefter.ficus.utils.netiCore.ResponseParser
 
 class TimetableRepository {
     private val appPreferences = AppPreferences
     private val api: GuestApi = NetworkService.retrofitService()
+    private val authApi: AuthApi = AuthNetworkService.retrofitService()
     private val groupsList = mutableListOf<GroupItem>()
     private var weekList = mutableListOf<Week>()
-    private var timetableMap = mutableMapOf<String, Timetable?>()
 
     suspend fun loadGroups(searchQuery: String): List<GroupItem>? {
         try {
+
             val response = api.getGroupList(searchQuery)
             if (response.isSuccessful) {
                 val parsedData = ResponseParser().parseGroups(response.body())
@@ -35,22 +38,47 @@ class TimetableRepository {
 
     fun setCurrentGroup(groupTitle: String){
         appPreferences.group = groupTitle
+        if (weekList.isNotEmpty()){
+            clearWeekListData()
+        }
     }
 
     suspend fun getCurrentGroup(): String? {
+        if (AppPreferences.group == null){
+            val response = authApi.getIndividualTimetable()
+            if (response.isSuccessful) {
+                val parsedData = ResponseParser().parseIndividualGroup(response.body())
+                if (parsedData != null) {
+                    appPreferences.group = parsedData
+                    return parsedData
+                }
+
+            }
+        }
         return AppPreferences.group
     }
 
     suspend fun loadWeeksList(): List<Week>? {
         try {
-            val response = api.getTimetable(AppPreferences.group!!, null)
-            if (response.isSuccessful) {
-                val parsedData = ResponseParser().parseWeeks(response.body())
-                if (parsedData != null) {
-                    weekList = parsedData.toMutableList()
+            if (AppPreferences.group != null && AppPreferences.group!!.contains("individual")){
+                val weekList_ = mutableListOf<Week>()
+                for (i in 1..18){
+                    weekList_.add(Week(title = "Неделя $i", query = i.toString()))
                 }
+                weekList = weekList_.toMutableList()
                 return getWeeksList()
             }
+            else{
+                val response = api.getTimetable(AppPreferences.group!!, null)
+                if (response.isSuccessful) {
+                    val parsedData = ResponseParser().parseWeeks(response.body())
+                    if (parsedData != null) {
+                        weekList = parsedData.toMutableList()
+                    }
+                    return getWeeksList()
+                }
+            }
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -63,12 +91,41 @@ class TimetableRepository {
 
     suspend fun loadTimetableForWeek(weekQuery: String): Timetable? {
         try {
-            val response = api.getTimetable(AppPreferences.group!!, weekQuery)
-            if (response.isSuccessful) {
-                val parsedData = ResponseParser().parseTimetable(response.body())
-                timetableMap[weekQuery] = parsedData
-                return timetableMap.get(weekQuery)
+            if (appPreferences.group == "individual"){
+                val response = authApi.getIndividualTimetable()
+                if (response.isSuccessful) {
+                    val parsedData = ResponseParser().parseIndividualTimetable(response.body(), weekQuery)
+                    Log.e("ttttt parsed", parsedData.toString())
+                    if (parsedData != null) {
+                        for (week in weekList){
+                            Log.e("ttttt", "w1^ ${week.query}, w2 $weekQuery")
+                            if (week.query == weekQuery){
+                                week.timetable = parsedData
+
+                            }
+
+                        }
+                    }
+                    return parsedData
+                }
             }
+            else{
+                val response = api.getTimetable(AppPreferences.group!!, weekQuery)
+                if (response.isSuccessful) {
+                    val parsedData = ResponseParser().parseTimetable(response.body())
+                    if (parsedData != null) {
+                        for (week in weekList){
+                            if (week.query == weekQuery){
+                                week.timetable = parsedData
+                            }
+
+                        }
+                    }
+                    return parsedData
+                }
+            }
+
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -76,10 +133,17 @@ class TimetableRepository {
     }
 
     fun getTimetableForWeek(weekQuery: String): Timetable? {
-        return timetableMap[weekQuery]
+        for (week in weekList){
+            if (week.query == weekQuery){
+                return week.timetable
+            }
+
+        }
+        return null
     }
 
-    fun getTimeTableMap(): Map<String, Timetable?> {
-        return timetableMap
+
+    fun clearWeekListData() {
+        weekList.clear()
     }
 }

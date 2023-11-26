@@ -10,7 +10,7 @@
     android:focusable="auto"
     android:foreground="?attr/selectableItemBackground"
 
-    app:cardBackgroundColor="?attr/colorSecondaryContainer"
+    app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardCornerRadius="@dimen/corner_cadius"
     app:contentPadding="12dp"
     tools:context=".view.activity.GuestActivity">
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="title"
-            android:textColor="?attr/colorOnSecondaryContainer"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp" />
 
         <LinearLayout
@@ -57,14 +57,14 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 app:srcCompat="@drawable/ic_schedule"
-                app:tint="?attr/colorOnSecondaryContainer" />
+                app:tint="?attr/colorOnSurface" />
 
             <TextView
                 android:id="@+id/time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="time"
-                android:textColor="?attr/colorOnSecondaryContainer" />
+                android:textColor="?attr/colorOnSurface" />
         </LinearLayout>
 
         <LinearLayout
@@ -79,14 +79,14 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 app:srcCompat="@drawable/distance"
-                app:tint="?attr/colorOnSecondaryContainer" />
+                app:tint="?attr/colorOnSurface" />
 
             <TextView
                 android:id="@+id/aud"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="aud"
-                android:textColor="?attr/colorOnSecondaryContainer" />
+                android:textColor="?attr/colorOnSurface" />
         </LinearLayout>
 
         <LinearLayout
@@ -101,14 +101,14 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 app:srcCompat="@drawable/person"
-                app:tint="?attr/colorOnSecondaryContainer" />
+                app:tint="?attr/colorOnSurface" />
 
             <TextView
                 android:id="@+id/person"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="person"
-                android:textColor="?attr/colorOnSecondaryContainer" />
+                android:textColor="?attr/colorOnSurface" />
         </LinearLayout>
 
     </LinearLayout>

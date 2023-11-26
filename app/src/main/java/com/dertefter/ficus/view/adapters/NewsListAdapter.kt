@@ -91,6 +91,7 @@ class NewsListAdapter(val fragment: NewsFragment) : RecyclerView.Adapter<Recycle
                 holder.image.visibility = View.VISIBLE
             }else{
                 holder.image.visibility = View.GONE
+                holder.type.visibility = View.GONE
                 holder.color = Color.GRAY
             }
             ViewCompat.setTransitionName(holder.itemView, "image$position")

@@ -10,18 +10,23 @@ import com.dertefter.ficus.data.timetable.Week
 import com.dertefter.ficus.repositoty.TimetableRepository
 import com.dertefter.ficus.repositoty.local.AppPreferences
 import com.dertefter.ficus.viewmodel.base.BaseViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TimetableViewModel : BaseViewModel() {
     val weeksLiveData = MutableLiveData<Event<List<Week>>>()
-    val timetableLiveData = MutableLiveData<Event<Map<String, Timetable?>>>()
+    val groupLiveData = MutableLiveData<Event<String>>()
     private val timetableRepository = TimetableRepository()
     init {
         timetableRepository.getWeeksList()
     }
-    val appPreferences = AppPreferences
+    private val appPreferences = AppPreferences
+
+    fun clearData(){
+        timetableRepository.clearWeekListData()
+    }
     fun getWeekList(){
         if (timetableRepository.getWeeksList().isNotEmpty()){
             val data = timetableRepository.getWeeksList()
@@ -41,31 +46,35 @@ class TimetableViewModel : BaseViewModel() {
     }
 
     fun getTimetableForWeek(weekQuery: String){
-        if (timetableRepository.getTimetableForWeek(weekQuery) != null){
-            viewModelScope.launch(Dispatchers.IO) {
-                val data = timetableRepository.getTimeTableMap()
+        viewModelScope.launch(Dispatchers.IO) {
+            if (timetableRepository.getTimetableForWeek(weekQuery) != null){
+                val data = timetableRepository.getWeeksList()
                 withContext(Dispatchers.Main){
-                    timetableLiveData.postValue(Event.success(data))
+                    weeksLiveData.postValue(Event.success(data))
                 }
-            }
-        } else{
-            viewModelScope.launch(Dispatchers.IO) {
-                Log.e("eeesaved not", timetableRepository.getTimeTableMap().toString())
+            } else{
+                withContext(Dispatchers.Main){
+                    weeksLiveData.postValue(Event.loading())
+                }
                 val data = timetableRepository.loadTimetableForWeek(weekQuery)
                 if (data != null) {
                     withContext(Dispatchers.Main){
-                        Log.e("eeesaved not", timetableRepository.getTimeTableMap().toString())
-                        timetableLiveData.postValue(Event.success(timetableRepository.getTimeTableMap()))
+                        weeksLiveData.postValue(Event.success(timetableRepository.getWeeksList()))
                     }
                 } else {
-                    timetableLiveData.postValue(Event.error(Error("Не удалось загрузить данные... ", "")))
+                    weeksLiveData.postValue(Event.error(Error("Не удалось загрузить данные... ", "")))
                 }
             }
         }
 
     }
-    fun getGroup(): String? {
-        return appPreferences.group
+
+
+
+    fun getGroup() {
+        CoroutineScope(Dispatchers.IO).launch {
+            groupLiveData.postValue(Event.success(timetableRepository.getCurrentGroup()))
+        }
     }
 
     fun setGroup(group: String) {

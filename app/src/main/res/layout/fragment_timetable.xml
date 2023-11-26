@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        app:liftOnScroll="true">
+        app:liftOnScroll="true"
+        >
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
@@ -27,14 +28,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            app:tabGravity="start"
+            app:tabIndicatorGravity="bottom"
             app:tabMode="scrollable" />
-
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:alpha="0"
-            android:indeterminate="true" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -74,6 +70,13 @@
                 app:icon="@drawable/person_search" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/today_week_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom|end"
+        android:text="К текущей неделе"
+        app:icon="@drawable/ic_schedule"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

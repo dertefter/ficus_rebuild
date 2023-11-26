@@ -1,6 +1,7 @@
 package com.dertefter.ficus.view.adapters
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter

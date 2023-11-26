@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ficuslogo"
+
+    >
+    <target
+        android:name="leftPart"
+        android:animation="@animator/splashscreen_animation_part1" />
+    <target
+        android:name="rightPart"
+        android:animation="@animator/splashscreen_animation_part2" />
+</animated-vector>

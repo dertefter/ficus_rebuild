@@ -1,6 +1,8 @@
 package com.dertefter.ficus.utils.netiCore
 
+import android.service.autofill.UserData
 import android.util.Log
+import com.dertefter.ficus.data.User
 import com.dertefter.ficus.data.news.NewsContent
 import com.dertefter.ficus.data.news.NewsItem
 import com.dertefter.ficus.data.timetable.Day
@@ -57,53 +59,17 @@ class ResponseParser {
         }
     }
 
-    fun parseTimetable(input: ResponseBody?): Timetable? {
+    fun parseIndividualGroup(input: ResponseBody?): String? {
         try{
-            val output = Timetable()
             val pretty = input?.string()!!
-            val dayItems = mutableListOf<Day>()
             val doc: Document = Jsoup.parse(pretty)
-            val table_body = doc.body().select("div.schedule__table-body").first()
-            val table_days = table_body?.select("> *")
-            Log.e("date", table_days.toString())
-            if (table_days != null) {
-                for (it in table_days){
-                    val title = it.select("div.schedule__table-day").first()?.ownText().toString()
-                    val date = it.select("span.schedule__table-date").text()
-                    val dayItem = Day(title, date)
-                    val lessonsItems = mutableListOf<Lesson>()
-                    val cell = it.select("div.schedule__table-cell")[1]
-                    val lessons = cell.select("> *")
-                    for (l in lessons){
-                        val time = l.select("div.schedule__table-time").text()
-                        val items = l.select("div.schedule__table-item")
-                        for (t in items){
-                            var lesson_title = t.ownText().replace("·", "").replace(",", "")
-                            val type = t.select("span.schedule__table-typework").first()?.ownText()
-                            val aud = t.parent()?.parent()?.select("div.schedule__table-class")?.text()
-                            var person = ""
-                            for (p in t.select("a")){
-                                person = person + p.text() + "\n"
-                            }
-                            if (person != ""){
-                                person = person.substring(0, person.length - 1)
-                            }
-                            if (lesson_title != ""){
-                                val lesson_item = Lesson(lesson_title, time, type, aud, person, null)
-                                lessonsItems.add(lesson_item)
-
-                            }
-
-
-                        }
-                    }
-                    dayItem.lessons = lessonsItems
-                    dayItems.add(dayItem)
-                }
-            }
-            output.days = dayItems
-            return output
-        } catch (e: Exception) {
+            var fio = doc.body().select("span.fio").first()!!
+            Log.e("fio", fio.toString())
+            var fio_arr = fio.text().split(" ")
+            var group = fio_arr[fio_arr.size - 1]
+            return group
+        }
+        catch (e: Exception) {
             Log.e("ResponseParser", e.stackTraceToString().toString())
             return null
         }
@@ -170,6 +136,136 @@ class ResponseParser {
             outputGroupList.add(item)
         }
         return outputGroupList
+
+    }
+
+    fun parseProfileData(input: ResponseBody?): User? {
+        try{
+            val pretty = input!!.string()
+            val doc: Document = Jsoup.parse(pretty)
+            val fullName = doc.select("span.fio").text().split(",")[0]
+            val name = doc.select("span.fio").text().split(" ")[1]
+            return User(name = name, fullName = fullName)
+        } catch (e: Exception){
+            return null
+        }
+
+
+    }
+
+    fun parseTimetable(input: ResponseBody?): Timetable? {
+        try{
+            val output = Timetable()
+            val pretty = input?.string()!!
+            val dayItems = mutableListOf<Day>()
+            val doc: Document = Jsoup.parse(pretty)
+            val table_body = doc.body().select("div.schedule__table-body").first()
+            val table_days = table_body?.select("> *")
+            if (table_days != null) {
+                for (it in table_days){
+                    val title = it.select("div.schedule__table-day").first()?.ownText().toString()
+                    val date = it.select("span.schedule__table-date").text()
+                    val dayToday: Boolean = it.select("div.schedule__table-day").first()?.attr("data-today").toBoolean()
+                    val dayItem = Day(title, date, null, dayToday)
+                    val lessonsItems = mutableListOf<Lesson>()
+                    val cell = it.select("div.schedule__table-cell")[1]
+                    val lessons = cell.select("> *")
+                    for (l in lessons){
+                        val time = l.select("div.schedule__table-time").text()
+                        val items = l.select("div.schedule__table-item")
+                        for (t in items){
+                            var lesson_title = t.ownText().replace("·", "").replace(",", "")
+                            val type = t.select("span.schedule__table-typework").first()?.ownText()
+                            val aud = t.parent()?.parent()?.select("div.schedule__table-class")?.text()
+                            var person = ""
+                            for (p in t.select("a")){
+                                person = person + p.text() + "\n"
+                            }
+                            if (person != ""){
+                                person = person.substring(0, person.length - 1)
+                            }
+                            if (lesson_title != ""){
+                                val lesson_item = Lesson(lesson_title, time, type, aud, person, null)
+                                lessonsItems.add(lesson_item)
+
+                            }
+
+
+                        }
+                    }
+                    dayItem.lessons = lessonsItems
+                    dayItems.add(dayItem)
+                }
+            }
+            output.days = dayItems
+            return output
+        } catch (e: Exception) {
+            Log.e("ResponseParser", e.stackTraceToString().toString())
+            return null
+        }
+    }
+    fun parseIndividualTimetable(input: ResponseBody?, weekQuery: String): Timetable? {
+        try{
+            val output = Timetable()
+            val pretty = input?.string().toString()
+            val dayItems = mutableListOf<Day>()
+            val doc: Document = Jsoup.parse(pretty)
+            val table_body = doc.body().select("div.schedule__table-body").first()
+            val table_days = table_body?.select("> *")
+
+            if (table_days != null) {
+                for (it in table_days){
+                    val title = it.select("div.schedule__table-day").first()?.ownText().toString()
+
+                    val date = it.select("span.schedule__table-date").text()
+                    val dayToday: Boolean = it.select("div.schedule__table-day").first()?.attr("data-today").toBoolean()
+                    val dayItem = Day(title, date, null, dayToday)
+                    val lessonsItems = mutableListOf<Lesson>()
+                    val cell = it.select("div.schedule__table-cell")[1]
+                    val lessons = cell.select("> *")
+                    for (l in lessons){
+                        val time = l.select("div.schedule__table-time").text()
+                        val items = l.select("div.schedule__table-item")
+                        for (t in items){
+                            var incorrect = false
+                            var label = t.select("span.schedule__table-label").first()
+                            if (label != null && !label.text().isNullOrEmpty()){
+                                val available_weeks = label.text().split(" ")
+                                if (!available_weeks.contains(weekQuery)){
+                                    incorrect = true
+                                }
+                            }
+
+                            var lesson_title = t.ownText().replace("·", "").replace(",", "")
+                            val type = t.select("span.schedule__table-typework").first()?.ownText()
+                            val aud = t.parent()?.parent()?.select("div.schedule__table-class")?.text()
+                            var person = ""
+                            for (p in t.select("a")){
+                                person = person + p.text() + "\n"
+                            }
+                            if (person != ""){
+                                person = person.substring(0, person.length - 1)
+                            }
+                            if (lesson_title != "" && !incorrect){
+                                val lesson_item = Lesson(lesson_title, time, type, aud, person, null)
+                                lessonsItems.add(lesson_item)
+                            }
+
+
+                        }
+                    }
+                    dayItem.lessons = lessonsItems
+                    dayItems.add(dayItem)
+
+                }
+            }
+            output.days = dayItems
+            return output
+
+        }
+        catch (e: Exception){
+            return null
+        }
 
     }
 }

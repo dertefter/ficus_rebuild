@@ -1,7 +1,6 @@
 package com.dertefter.ficus.view.fragments.timetable
 
 import android.animation.ObjectAnimator
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dertefter.ficus.R
 import com.dertefter.ficus.data.Status
 import com.dertefter.ficus.data.errors.Error
-import com.dertefter.ficus.data.timetable.Timetable
 import com.dertefter.ficus.data.timetable.Week
 import com.dertefter.ficus.databinding.FragmentWeekTimetableContainerBinding
 import com.dertefter.ficus.view.adapters.TimetableWeekAdapter
@@ -27,6 +25,14 @@ class TimetableWeekContainerFragment() : Fragment(R.layout.fragment_week_timetab
     var timetableWeekAdapter: TimetableWeekAdapter? = null
     var weekQuery: String? = null
 
+    override fun onPause() {
+        super.onPause()
+        binding?.daysRecyclerView?.scrollToPosition(0)
+    }
+    override fun onResume() {
+        super.onResume()
+        (parentFragment as TimetableFragment).binding?.appBarLayout?.liftOnScrollTargetViewId = binding?.daysRecyclerView?.id!!
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentWeekTimetableContainerBinding.bind(view)
@@ -36,6 +42,7 @@ class TimetableWeekContainerFragment() : Fragment(R.layout.fragment_week_timetab
         setupRecyclerView()
         weekQuery = arguments?.getString("weekQuery")
         showTimetableForWeek(weekQuery)
+        binding?.progressBar?.visibility = View.VISIBLE
     }
 
     private fun setupRecyclerView(){
@@ -45,6 +52,7 @@ class TimetableWeekContainerFragment() : Fragment(R.layout.fragment_week_timetab
         val itemDecorator = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         itemDecorator.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
         recyclerView.addItemDecoration(itemDecorator)
+
     }
 
 
@@ -55,7 +63,7 @@ class TimetableWeekContainerFragment() : Fragment(R.layout.fragment_week_timetab
     }
 
     private fun observeGetPosts() {
-        timetableViewModel.timetableLiveData.observe(viewLifecycleOwner) {
+        timetableViewModel.weeksLiveData.observe(viewLifecycleOwner) {
             when (it.status) {
                 Status.LOADING -> onLoading()
                 Status.SUCCESS -> onSuccess(it.data)
@@ -67,15 +75,18 @@ class TimetableWeekContainerFragment() : Fragment(R.layout.fragment_week_timetab
     private fun onError(error: Error?) {
         binding?.progressBar?.visibility = View.GONE
     }
-    private fun onSuccess(data: Map<String, Timetable?>?) {
-        Log.e("eee", data.toString())
+    private fun onSuccess(data: List<Week>?) {
         binding?.progressBar?.visibility = View.GONE
         if (data != null){
-            val timetable = data[weekQuery]
-            val days = timetable?.days
-            timetableWeekAdapter?.setDayList(days)
-            binding?.progressBar?.visibility = View.GONE
-            binding?.daysRecyclerView?.visibility = View.VISIBLE
+            for (week in data){
+                if (week.query == weekQuery){
+                    val days = week.timetable?.days
+                    timetableWeekAdapter?.setDayList(days)
+                    ObjectAnimator.ofFloat(binding?.daysRecyclerView, "alpha", 0f, 1f).setDuration(300).start()
+                    binding?.daysRecyclerView?.visibility = View.VISIBLE
+                }
+            }
+
         }
 
     }
@@ -83,6 +94,10 @@ class TimetableWeekContainerFragment() : Fragment(R.layout.fragment_week_timetab
     private fun onLoading() {
         binding?.progressBar?.visibility = View.VISIBLE
         binding?.daysRecyclerView?.visibility = View.GONE
+    }
+
+    fun scrollToPosition(position: Int) {
+        binding?.daysRecyclerView?.smoothScrollToPosition(position)
     }
 
 }

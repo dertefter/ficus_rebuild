@@ -7,7 +7,7 @@
     android:divider="@drawable/divider"
     android:focusable="auto"
     android:orientation="vertical"
-    android:showDividers="middle|end"
+    android:showDividers="middle|beginning"
     tools:context=".view.activity.GuestActivity">
 
 
@@ -21,11 +21,4 @@
         android:textColor="?attr/colorOnSurface"
         android:textSize="24sp" />
 
-    <LinearLayout
-        android:id="@+id/lessons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@drawable/divider"
-        android:orientation="vertical"
-        android:showDividers="middle"></LinearLayout>
 </LinearLayout>
