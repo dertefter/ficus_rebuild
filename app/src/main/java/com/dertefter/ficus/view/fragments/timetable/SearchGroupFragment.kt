@@ -62,6 +62,7 @@ class SearchGroupFragment : Fragment(R.layout.fragment_search_group) {
 
     fun setGroup(group: String){
         searchGroupViewModel.setGroup(group)
+        stateFlowViewModel.updateUserData(customGroup = group)
         requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
@@ -74,8 +75,7 @@ class SearchGroupFragment : Fragment(R.layout.fragment_search_group) {
         lifecycleScope.launch {
             stateFlowViewModel.uiState.collect{
                 if (it.isAuthrized == true){
-                    groupListAdapter.addIndividual()
-                }else{
+                    groupListAdapter.individualEnabled = true
                 }
             }
         }

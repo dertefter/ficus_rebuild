@@ -18,14 +18,11 @@ import kotlinx.coroutines.withContext
 class TimetableViewModel : BaseViewModel() {
     val weeksLiveData = MutableLiveData<Event<List<Week>>>()
     val groupLiveData = MutableLiveData<Event<String>>()
-    private val timetableRepository = TimetableRepository()
-    init {
-        timetableRepository.getWeeksList()
-    }
+    private var timetableRepository = TimetableRepository()
     private val appPreferences = AppPreferences
 
     fun clearData(){
-        timetableRepository.clearWeekListData()
+        timetableRepository = TimetableRepository()
     }
     fun getWeekList(){
         if (timetableRepository.getWeeksList().isNotEmpty()){
@@ -47,7 +44,7 @@ class TimetableViewModel : BaseViewModel() {
 
     fun getTimetableForWeek(weekQuery: String){
         viewModelScope.launch(Dispatchers.IO) {
-            if (timetableRepository.getTimetableForWeek(weekQuery) != null){
+            if (timetableRepository.getTimetableForWeek(weekQuery) != null && !timetableRepository.getTimetableForWeek(weekQuery)!!.days.isNullOrEmpty()){
                 val data = timetableRepository.getWeeksList()
                 withContext(Dispatchers.Main){
                     weeksLiveData.postValue(Event.success(data))

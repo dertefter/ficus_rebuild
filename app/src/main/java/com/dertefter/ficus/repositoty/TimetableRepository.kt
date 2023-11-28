@@ -44,29 +44,38 @@ class TimetableRepository {
     }
 
     suspend fun getCurrentGroup(): String? {
-        if (AppPreferences.group == null){
-            val response = authApi.getIndividualTimetable()
-            if (response.isSuccessful) {
-                val parsedData = ResponseParser().parseIndividualGroup(response.body())
-                if (parsedData != null) {
-                    appPreferences.group = parsedData
-                    return parsedData
-                }
+        try{
+            if (AppPreferences.group == null){
+                val response = authApi.getIndividualTimetable()
+                if (response.isSuccessful) {
+                    val parsedData = ResponseParser().parseIndividualGroup(response.body())
+                    if (parsedData != null) {
+                        appPreferences.group = parsedData
+                        return parsedData
+                    }
 
+                }
             }
+            return AppPreferences.group
+        } catch (e: Exception){
+            Log.e("getCurrentGroup", e.stackTraceToString())
+            return null
         }
-        return AppPreferences.group
     }
 
     suspend fun loadWeeksList(): List<Week>? {
         try {
-            if (AppPreferences.group != null && AppPreferences.group!!.contains("individual")){
-                val weekList_ = mutableListOf<Week>()
-                for (i in 1..18){
-                    weekList_.add(Week(title = "Неделя $i", query = i.toString()))
+            if (AppPreferences.group != null && AppPreferences.group == "individual"){
+
+                val response = authApi.getIndividualTimetable()
+                if (response.isSuccessful) {
+                    val parsedData = ResponseParser().parseWeeksForIndividual(response.body())
+                    if (parsedData != null) {
+                        weekList = parsedData.toMutableList()
+                    }
+                    return getWeeksList()
                 }
-                weekList = weekList_.toMutableList()
-                return getWeeksList()
+
             }
             else{
                 val response = api.getTimetable(AppPreferences.group!!, null)
@@ -95,10 +104,8 @@ class TimetableRepository {
                 val response = authApi.getIndividualTimetable()
                 if (response.isSuccessful) {
                     val parsedData = ResponseParser().parseIndividualTimetable(response.body(), weekQuery)
-                    Log.e("ttttt parsed", parsedData.toString())
                     if (parsedData != null) {
                         for (week in weekList){
-                            Log.e("ttttt", "w1^ ${week.query}, w2 $weekQuery")
                             if (week.query == weekQuery){
                                 week.timetable = parsedData
 

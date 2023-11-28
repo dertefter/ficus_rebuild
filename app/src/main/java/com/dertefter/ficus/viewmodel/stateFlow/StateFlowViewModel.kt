@@ -3,7 +3,6 @@ package com.dertefter.ficus.viewmodel.stateFlow
 import androidx.lifecycle.ViewModel
 import com.dertefter.ficus.data.UiStateData
 import com.dertefter.ficus.repositoty.AuthRepository
-import com.dertefter.ficus.repositoty.api.student_study.AuthNetworkService
 import com.dertefter.ficus.repositoty.local.AppPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,11 +27,14 @@ class StateFlowViewModel: ViewModel()   {
 
     }
 
-    fun getName(){
+    fun updateUserData(customGroup: String? = null){
         CoroutineScope(Dispatchers.IO).launch {
             val user = authRepository.updateProfileData()
             _uiState.update {
-                it.copy(user = user)
+                if (customGroup != null && customGroup != "individual"){
+                    user?.customGroupTitle = customGroup
+                }
+                it.copy(User = user)
             }
         }
     }
@@ -42,13 +44,16 @@ class StateFlowViewModel: ViewModel()   {
             it.copy(isAuthrized = null)
         }
         CoroutineScope(Dispatchers.IO).launch {
-            _uiState.update {
-                if (authRepository.tryAuth(login, password)){
+            if (authRepository.tryAuth(login, password)){
+                _uiState.update {
                     it.copy(isAuthrized = true)
-                } else {
+                }
+            } else {
+                _uiState.update {
                     it.copy(isAuthrized = false)
                 }
             }
+
         }
 
     }

@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.dertefter.ficus.R
 import com.dertefter.ficus.data.timetable.GroupItem
@@ -14,6 +15,7 @@ class GroupListAdapter(val fragment: SearchGroupFragment) : RecyclerView.Adapter
     var individualEnabled = false
     fun addIndividual(){
         groupList.add(0, GroupItem("Индивидуальное"))
+        individualEnabled = true
         notifyDataSetChanged()
     }
 

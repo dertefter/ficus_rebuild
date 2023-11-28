@@ -145,7 +145,8 @@ class ResponseParser {
             val doc: Document = Jsoup.parse(pretty)
             val fullName = doc.select("span.fio").text().split(",")[0]
             val name = doc.select("span.fio").text().split(" ")[1]
-            return User(name = name, fullName = fullName)
+            val groupTitle = doc.select("span.fio").text().split(",")[1].replace(" ", "")
+            return User(name = name, fullName = fullName, groupTitle = groupTitle)
         } catch (e: Exception){
             return null
         }
@@ -230,10 +231,22 @@ class ResponseParser {
                             var incorrect = false
                             var label = t.select("span.schedule__table-label").first()
                             if (label != null && !label.text().isNullOrEmpty()){
-                                val available_weeks = label.text().split(" ")
-                                if (!available_weeks.contains(weekQuery)){
+                                val labelText = label.text()
+                                if (labelText.contains("недели")){
+                                    val available_weeks = label.text().split(" ")
+                                    if (!available_weeks.contains(weekQuery)){
+                                        incorrect = true
+                                    }
+                                }
+                                else if (labelText.contains("по чётным") && weekQuery.toInt() % 2 != 0){
                                     incorrect = true
                                 }
+                                else if (labelText.contains("по нечётным") && weekQuery.toInt() % 2 == 0){
+                                    incorrect = true
+                                }
+
+
+
                             }
 
                             var lesson_title = t.ownText().replace("·", "").replace(",", "")
@@ -264,6 +277,33 @@ class ResponseParser {
 
         }
         catch (e: Exception){
+            return null
+        }
+
+    }
+
+    fun parseWeeksForIndividual(input: ResponseBody?): List<Week>? {
+        try{
+            val weekList_ = mutableListOf<Week>()
+            val pretty = input?.string().toString()
+            var current_week_query = "1"
+            val doc: Document = Jsoup.parse(pretty)
+            val label = doc.body().select("span.schedule__title-label").text()
+            try{
+                current_week_query = label.split(" ")[0]
+            }catch (e: Exception){
+                Log.e("ResponseParser", e.stackTraceToString().toString())
+            }
+            for (i in 1..18){
+                val week = Week(title = "Неделя $i", query = i.toString())
+                if (i.toString() == current_week_query){
+                    week.today = true
+                }
+                weekList_.add(week)
+            }
+            return weekList_
+        } catch (e: Exception){
+            Log.e("ResponseParser", e.stackTraceToString().toString())
             return null
         }
 

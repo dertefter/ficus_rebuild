@@ -75,5 +75,13 @@
         android:id="@+id/authFragment"
         android:name="com.dertefter.ficus.view.fragments.auth.AuthFragment"
         android:label="AuthFragment" />
+    <fragment
+        android:id="@+id/messagesFragment"
+        android:name="com.dertefter.ficus.view.fragments.messages.MessagesFragment"
+        android:label="fragment_messages" >
+        <action
+            android:id="@+id/action_messagesFragment_to_authFragment"
+            app:destination="@id/authFragment" />
+    </fragment>
 
 </navigation>

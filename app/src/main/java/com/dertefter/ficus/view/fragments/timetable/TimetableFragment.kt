@@ -13,6 +13,7 @@ import com.dertefter.ficus.data.Status
 import com.dertefter.ficus.data.errors.Error
 import com.dertefter.ficus.data.timetable.Week
 import com.dertefter.ficus.databinding.FragmentTimetableBinding
+import com.dertefter.ficus.repositoty.local.AppPreferences
 import com.dertefter.ficus.view.adapters.timetableViewPagerAdapter
 import com.dertefter.ficus.viewmodel.stateFlow.StateFlowViewModel
 import com.dertefter.ficus.viewmodel.timetable.TimetableViewModel
@@ -43,8 +44,10 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
     }
 
 
-    fun setupAppbar(){
+    fun setupAppbar(title: String = "Расписание занятий", subtitle: String = ""){
         binding?.appBarLayout?.statusBarForeground = MaterialShapeDrawable.createWithElevationOverlay(context)
+        binding?.topAppBar?.title = title
+        binding?.topAppBar?.subtitle = subtitle
         binding?.topAppBar?.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.set_group -> {
@@ -59,9 +62,15 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
     fun setupViewPagerAndTabs(weeks: List<Week>?) {
         val viewPager = binding?.timetablePager
         val tabLayout = binding?.weeksTabLayout
-        val adapter = timetableViewPagerAdapter(childFragmentManager, lifecycle)
-        viewPager?.adapter = adapter
-        adapter.setWeeks(weeks)
+        if (viewPager?.adapter == null){
+            val adapter = timetableViewPagerAdapter(childFragmentManager, lifecycle)
+            viewPager?.adapter = adapter
+            adapter.setWeeks(weeks)
+        }else{
+            val adapter = viewPager.adapter as timetableViewPagerAdapter
+            adapter.setWeeks(weeks)
+        }
+
         TabLayoutMediator(tabLayout!!, viewPager!!) {
                 tab, position ->  tab.text = weeks?.get(position)?.title
                 if (weeks?.get(position)?.today == true){
@@ -87,7 +96,7 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
     }
 
     private fun updateWeeks(weeks: List<Week>?){
-        if (weeks != null) {
+        if (weeks != null && weeks.isNotEmpty()){
             setupViewPagerAndTabs(weeks)
             timetableViewModel.weeksLiveData.removeObservers(viewLifecycleOwner)
         }
@@ -115,12 +124,14 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
                         }
                     }
                     else{
+                        if (it.data != "individual"){
+                            setupAppbar(it.data)
+                        }
                         binding?.groupNotSet?.visibility = View.GONE
                         observeGetPosts()
 
                         if (binding?.weeksTabLayout?.tabCount == 0){
                             timetableViewModel.getWeekList()
-                            setupAppbar()
                         }
 
                     }
@@ -134,7 +145,17 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
         lifecycleScope.launch {
             stateFlowViewModel.uiState.collect{
                 if (it.isAuthrized == true){
+                    if (it.User == null){
+                        stateFlowViewModel.updateUserData()
+                    }else{
+                        if (it.User!!.customGroupTitle != null){
+                            setupAppbar(it.User!!.customGroupTitle!!)
+                        }else{
+                            setupAppbar(it.User!!.groupTitle, "Индивидуальное расписание")
+                        }
 
+                    }
+                    timetableViewModel.getWeekList()
                 }else{
 
                 }

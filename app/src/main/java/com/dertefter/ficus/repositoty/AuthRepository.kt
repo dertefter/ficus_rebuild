@@ -1,5 +1,6 @@
 package com.dertefter.ficus.repositoty
 
+import android.util.Log
 import com.dertefter.ficus.data.User
 import com.dertefter.ficus.repositoty.api.student_study.AuthApi
 import com.dertefter.ficus.repositoty.api.student_study.AuthNetworkService
@@ -32,7 +33,9 @@ class AuthRepository {
                 appPreferences.token = tokenId
                 appPreferences.login = login
                 appPreferences.password = password
+                appPreferences.group = "individual"
                 authApi = AuthNetworkService.retrofitService(tokenId)
+                updateProfileData()
                 true
             }else{
                 false
@@ -47,7 +50,9 @@ class AuthRepository {
         try {
             val response = authApi.getBasePage()
             if (response.isSuccessful) {
-                return ResponseParser().parseProfileData(response.body())
+                val user = ResponseParser().parseProfileData(response.body())
+                user?.login = appPreferences.login.toString()
+                return user
             }
         }catch (e: Exception) {
             e.printStackTrace()

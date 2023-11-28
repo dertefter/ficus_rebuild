@@ -5,6 +5,8 @@ data class User(
     var password: String = "",
     var fullName: String = "",
     var name: String = "",
-    var login: String = ""
+    var login: String = "",
+    var groupTitle: String = "",
+    var customGroupTitle: String? = null,
 
 )

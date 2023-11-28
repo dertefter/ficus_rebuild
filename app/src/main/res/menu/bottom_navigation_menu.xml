@@ -8,6 +8,10 @@
         android:id="@+id/newsFragment"
         android:icon="@drawable/ic_newspaper"
         android:checkable="true"/>
+    <item android:title="Сообщения"
+        android:id="@+id/messagesFragment"
+        android:icon="@drawable/chat"
+        android:checkable="true"/>
     <item android:title="Профиль"
         android:id="@+id/profileFragment"
         android:icon="@drawable/grid_view"

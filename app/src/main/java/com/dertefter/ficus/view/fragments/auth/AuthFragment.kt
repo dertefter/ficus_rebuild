@@ -22,7 +22,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class AuthFragment : Fragment(R.layout.fragment_auth) {
@@ -43,8 +45,13 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         lifecycleScope.launch {
             stateFlowViewModel.uiState.collect{
                 if (it.isAuthrized == true){
+                    withContext(Dispatchers.Main){
+                        binding.progressBar.visibility = View.GONE
+                        val timetableViewModel = ViewModelProvider(requireActivity())[TimetableViewModel::class.java]
+                        timetableViewModel.clearData()
+                    }
                     requireActivity().onBackPressedDispatcher.onBackPressed()
-                    binding.progressBar.visibility = View.GONE
+
                 }else if (it.isAuthrized == false){
                     binding.progressBar.visibility = View.GONE
                     Snackbar.make(binding.root, "Произошла ошибка...", Snackbar.LENGTH_SHORT).show()
