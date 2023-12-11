@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp"
+    tools:context=".view.activity.GuestActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/is_new"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="4dp"
+                android:padding="5dp"
+                app:tint="?attr/colorPrimary"
+                tools:srcCompat="@drawable/rounded_background" />
+
+            <TextView
+                android:id="@+id/last_message_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:lines="1"
+                android:text="Тестовое сообщение рдивдововиа вмвмшвмшрывщшрмв мврвмшрмвшомвдщомывщзомвыщо мвтщшврвыщ мтшлвмщы мщшымщшы мршщвырмщшвыромщшврмщш мрщрмлрл вмилврмвшмалв мпшвепывлатыв"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/last_message_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="Тестовое сообщение рдивдововиа вмвмшвмшрывщшрмв мврвмшрмвшомвдщомывщзомвыщо мвтщшврвыщ мтшлвмщы мщшымщшы мршщвырмщшвыромщшврмщш мрщрмлрл вмилврмвшмалв мпшвепывлатыв"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+    </LinearLayout>
+
+</FrameLayout>

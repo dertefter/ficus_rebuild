@@ -8,5 +8,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Timetable(
-    var days: List<Day>? = null
+    var days: List<Day>? = null,
+    var group: String? = null,
 ): Parcelable

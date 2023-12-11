@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Material3.CardView.Filled"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainer"
+    app:cardCornerRadius="@dimen/corner_cadius"
+    app:cardUseCompatPadding="false"
+    tools:context=".view.activity.GuestActivity">
+
+
+    <TextView
+        android:id="@+id/is_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:fontFamily="sans-serif-medium"
+        android:text="(новое)"
+        android:textColor="?attr/colorPrimary"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@drawable/divider"
+        android:orientation="vertical"
+        android:padding="14dp"
+        android:showDividers="middle">
+
+        <TextView
+            android:id="@+id/last_message_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="Тестовое сообщение рдивдововиа вмвмшвмшрывщшрмв мврвмшрмвшомвдщомывщзомвыщо мвтщшврвыщ мтшлвмщы мщшымщшы мршщвырмщшвыромщшврмщш мрщрмлрл вмилврмвшмалв мпшвепывлатыв"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/last_message_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Тестовое сообщение рдивдововиа вмвмшвмшрывщшрмв мврвмшрмвшомвдщомывщзомвыщо мвтщшврвыщ мтшлвмщы мщшымщшы мршщвырмщшвыромщшврмщш мрщрмлрл вмилврмвшмалв мпшвепывлатыв"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

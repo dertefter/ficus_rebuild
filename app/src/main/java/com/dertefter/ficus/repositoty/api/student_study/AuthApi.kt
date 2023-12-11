@@ -26,4 +26,10 @@ interface AuthApi {
     @GET("timetable/timetable_lessons")
     suspend fun getIndividualTimetable(): Response<ResponseBody>
 
+    @GET("mess_teacher")
+    suspend fun getChatLists(@Query("year") year: String?): Response<ResponseBody>
+
+    @GET("mess_teacher/view")
+    suspend fun loadMessage(@Query("id") id: String?): Response<ResponseBody>
+
 }

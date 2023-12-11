@@ -3,6 +3,8 @@ package com.dertefter.ficus.utils.netiCore
 import android.service.autofill.UserData
 import android.util.Log
 import com.dertefter.ficus.data.User
+import com.dertefter.ficus.data.messages.StudentStudyChatItem
+import com.dertefter.ficus.data.messages.StudentStudyMessage
 import com.dertefter.ficus.data.news.NewsContent
 import com.dertefter.ficus.data.news.NewsItem
 import com.dertefter.ficus.data.timetable.Day
@@ -295,7 +297,7 @@ class ResponseParser {
                 Log.e("ResponseParser", e.stackTraceToString().toString())
             }
             for (i in 1..18){
-                val week = Week(title = "Неделя $i", query = i.toString())
+                val week = Week(title = "Неделя $i", weekQuery = i.toString())
                 if (i.toString() == current_week_query){
                     week.today = true
                 }
@@ -307,5 +309,72 @@ class ResponseParser {
             return null
         }
 
+    }
+
+    fun parseChatLists(input: ResponseBody?, tab: String): List<StudentStudyChatItem> {
+        val output = mutableListOf<StudentStudyChatItem>()
+        try{
+            val outputMap = mutableMapOf<String, StudentStudyChatItem>()
+            val pretty = input?.string().toString()
+            val doc: Document = Jsoup.parse(pretty)
+            if (tab == "teacher"){
+                val tab = doc.select("div#tabs1-messages").first()!!
+                val messageItems = tab.select("div.pad")
+                for (it in messageItems){
+                    var is_new = false
+                    if (it.hasClass("new_message_header")){ is_new = true }
+                    val send_by = it.select("div.col-2.col-sm-6").first()?.text().toString()
+                    val mes_id = it.select("div.col-8.col-sm-6").first()?.attr("onclick").toString()
+                        .replace("openWin2('https://ciu.nstu.ru/student_study/mess_teacher/view?id=","")
+                        .replace("');return false;","")
+                    val mes_text = it.select("div.col-8.col-sm-6").first()?.text().toString()
+                    val text = mes_text.split(" -- ")[1]
+                    val title = mes_text.split(" -- ")[0]
+                    val message = StudentStudyMessage(mes_id, title, text, is_new)
+                    if (outputMap[send_by] != null){
+                        val messages = outputMap[send_by]!!.messages.toMutableList()
+                        messages.add(message)
+                        outputMap[send_by]!!.messages = messages
+                    }else{
+                        outputMap[send_by] = StudentStudyChatItem(send_by, is_new, listOf(message))
+                    }
+                }
+                return outputMap.values.toList()
+            }else{
+                val tab = doc.select("div#tabs2-messages").first()!!
+                val messageItems = tab.select("div.pad")
+                for (it in messageItems){
+                    var is_new = false
+                    if (it.hasClass("new_message_header")){ is_new = true }
+                    val send_by = it.select("div.col-2.col-sm-6").first()?.text().toString()
+                    val mes_id = it.select("div.col-8.col-sm-6").first()?.attr("onclick").toString()
+                        .replace("openWin2('https://ciu.nstu.ru/student_study/mess_teacher/view?id=","")
+                        .replace("');return false;","")
+                    val mes_text = it.select("div.col-8.col-sm-6").first()?.text().toString()
+                    val text = mes_text.split(" -- ")[1]
+                    val title = mes_text.split(" -- ")[0]
+                    val message = StudentStudyMessage(mes_id, title, text, is_new)
+                    if (outputMap[send_by] != null){
+                        val messages = outputMap[send_by]!!.messages.toMutableList()
+                        messages.add(message)
+                        outputMap[send_by]!!.messages = messages
+                    }else{
+                        outputMap[send_by] = StudentStudyChatItem(send_by, is_new, listOf(message))
+                    }
+                }
+                return outputMap.values.toList()
+            }
+        }catch (e: Exception){
+            Log.e("ResponseParser", e.stackTraceToString().toString())
+            val outputMap = mutableMapOf<String, StudentStudyChatItem>()
+            return outputMap.values.toList()
+        }
+    }
+
+    fun parseMessageContent(input: ResponseBody?): String {
+        val pretty = input?.string().toString()
+        val doc: Document = Jsoup.parse(pretty)
+        val content = doc.select("form").select("span")[6]
+        return content.toString()
     }
 }

@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/timetableFragment"
-        android:name="com.dertefter.ficus.view.fragments.timetable.TimetableFragment"
+        android:name="com.dertefter.ficus.view.fragments.timetable.TimetableFragmentWeekSelector"
         android:label="fragment_timetable"
-        tools:layout="@layout/fragment_timetable" >
+        tools:layout="@layout/fragment_timetable_week_selector" >
         <action
             android:id="@+id/action_timetableFragment_to_setGroupFragment"
             app:destination="@id/setGroupFragment" />
@@ -82,6 +82,33 @@
         <action
             android:id="@+id/action_messagesFragment_to_authFragment"
             app:destination="@id/authFragment" />
+        <action
+            android:id="@+id/action_messagesFragment_to_readMessagesFragment"
+            app:destination="@id/readMessagesFragment"
+            app:enterAnim="@animator/nav_default_enter_anim"
+            app:exitAnim="@animator/nav_default_exit_anim"
+            app:popEnterAnim="@animator/nav_default_pop_enter_anim"
+            app:popExitAnim="@animator/nav_default_pop_exit_anim"
+            app:popUpTo="@id/messagesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/readMessagesFragment"
+        android:name="com.dertefter.ficus.view.fragments.messages.MessagesMoreFragment"
+        android:label="ReadMessagesFragment" >
+        <argument
+            android:name="ChatItem"
+            app:argType="com.dertefter.ficus.data.messages.StudentStudyChatItem" />
+        <action
+            android:id="@+id/action_readMessagesFragment_to_readMessageFragment"
+            app:destination="@id/readMessageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/readMessageFragment"
+        android:name="com.dertefter.ficus.view.fragments.messages.ReadMessageFragment"
+        android:label="ReadMessageFragment" >
+        <argument
+            android:name="message"
+            app:argType="com.dertefter.ficus.data.messages.StudentStudyMessage" />
     </fragment>
 
 </navigation>

@@ -21,7 +21,6 @@ import com.dertefter.ficus.view.fragments.auth.AuthFragment
 import com.dertefter.ficus.view.fragments.news.ReadNewsFragment
 import com.dertefter.ficus.view.fragments.timetable.SearchGroupFragment
 import com.dertefter.ficus.viewmodel.stateFlow.StateFlowViewModel
-import com.dertefter.ficus.viewmodel.timetable.TimetableViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,8 +59,10 @@ class GuestActivity : AppCompatActivity() {
        lifecycleScope.launch {
            stateFlowViewModel.uiState.collect{
                if (it.isAuthrized == true){
+                   stateFlowViewModel.updateUserData()
+                   stateFlowViewModel.updateTimetableData()
                }else{
-
+                   stateFlowViewModel.updateTimetableData()
                }
            }
        }
@@ -72,14 +73,19 @@ class GuestActivity : AppCompatActivity() {
     }
 
     fun checkIsFragmentHideBottomNavigation(id: Int?){
-        if (id == R.id.readNewsFragment){
-            hideBottomNavigation(true)
-        }else if (id == R.id.authFragment) {
-            hideBottomNavigation(true)
-        } else if (id == R.id.setGroupFragment) {
-            hideBottomNavigation(true)
-        } else {
-            hideBottomNavigation(false)
+        val hideFragments = listOf<Int>(
+            R.id.readNewsFragment,
+            R.id.authFragment,
+            R.id.setGroupFragment,
+            R.id.readMessagesFragment,
+            R.id.readMessageFragment
+        )
+        if (id != null) {
+            if (hideFragments.contains(id)){
+                hideBottomNavigation(true)
+            }else{
+                hideBottomNavigation(false)
+            }
         }
     }
 

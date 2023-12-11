@@ -13,7 +13,6 @@ import androidx.navigation.fragment.findNavController
 import com.dertefter.ficus.R
 import com.dertefter.ficus.databinding.FragmentProfileDialogBinding
 import com.dertefter.ficus.viewmodel.stateFlow.StateFlowViewModel
-import com.dertefter.ficus.viewmodel.timetable.TimetableViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.fragments.timetable.TimetableFragment">
+    tools:context=".view.fragments.timetable.TimetableFragmentWeekSelector">
 
 
     <com.google.android.material.appbar.AppBarLayout
@@ -34,7 +34,7 @@
             android:layout_marginEnd="12dp"
             android:layout_marginBottom="8dp"
             android:backgroundTintMode="screen"
-            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
             app:cardCornerRadius="48dp">
 
             <LinearLayout
@@ -51,8 +51,8 @@
                     android:layout_height="48dp"
                     android:layout_weight="0"
                     android:padding="10dp"
-                    app:tint="?attr/colorOnSecondaryContainer"
-                    app:srcCompat="@drawable/search" />
+                    app:srcCompat="@drawable/search"
+                    app:tint="?attr/colorOnSecondaryContainer" />
 
                 <EditText
                     android:id="@+id/search_edit_text"

@@ -10,12 +10,13 @@ import com.dertefter.ficus.view.fragments.timetable.TimetableWeekContainerFragme
 
 
 
-class timetableViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+class TimetableViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
 
     FragmentStateAdapter(fragmentManager, lifecycle) {
     var weeksList: List<Week>? = null
 
     fun setWeeks(weeks: List<Week>?){
+        Log.e("TimetableViewPagerAdapter", "setWeeks: $weeksList")
         weeksList = weeks
     }
 
@@ -28,7 +29,7 @@ class timetableViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lif
         val week = weeksList?.get(position)
         val fragment = TimetableWeekContainerFragment()
         val bundle = Bundle()
-        bundle.putString("weekQuery", week?.query)
+        bundle.putString("weekQuery", week?.weekQuery)
         fragment.arguments = bundle
         return fragment
     }

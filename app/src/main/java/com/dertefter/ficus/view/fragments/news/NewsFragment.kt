@@ -21,10 +21,8 @@ import com.dertefter.ficus.R
 import com.dertefter.ficus.data.news.NewsItem
 import com.dertefter.ficus.data.Status
 import com.dertefter.ficus.databinding.FragmentNewsBinding
-import com.dertefter.ficus.utils.ViewUtils
 import com.dertefter.ficus.view.adapters.NewsListAdapter
-import com.dertefter.ficus.viewmodel.NewsViewModel
-import com.google.android.material.color.MaterialColors
+import com.dertefter.ficus.viewmodel.news.NewsViewModel
 import com.google.android.material.shape.MaterialShapeDrawable
 
 class NewsFragment : Fragment(R.layout.fragment_news) {
@@ -49,7 +47,6 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
                 newsid,
                 date,
                 color
-
             )
         findNavController().navigate(direction, extras)
     }

@@ -52,13 +52,27 @@ class AuthRepository {
             if (response.isSuccessful) {
                 val user = ResponseParser().parseProfileData(response.body())
                 user?.login = appPreferences.login.toString()
+                appPreferences.group = "individual"
+                appPreferences.fullName = user?.fullName
+                return user
+            }else{
+                val user = User()
+                user.login = appPreferences.login.toString()
+                user.groupTitle = appPreferences.group.toString()
+                user.fullName = appPreferences.fullName.toString()
                 return user
             }
         }catch (e: Exception) {
             e.printStackTrace()
+            if (appPreferences.login != null && appPreferences.group != null){
+                val user = User()
+                user.login = appPreferences.login.toString()
+                user.groupTitle = appPreferences.group.toString()
+                user.fullName = appPreferences.fullName.toString()
+                return user
+            }
             return null
         }
-        return null
     }
 
 }

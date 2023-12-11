@@ -1,4 +1,4 @@
-package com.dertefter.ficus.viewmodel
+package com.dertefter.ficus.viewmodel.news
 
 import androidx.lifecycle.MutableLiveData
 import com.dertefter.ficus.data.Event

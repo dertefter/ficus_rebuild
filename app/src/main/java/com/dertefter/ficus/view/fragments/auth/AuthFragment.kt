@@ -1,27 +1,14 @@
 package com.dertefter.ficus.view.fragments.auth
 
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.dertefter.ficus.R
-import com.dertefter.ficus.data.Status
-import com.dertefter.ficus.data.errors.Error
-import com.dertefter.ficus.data.timetable.Week
 import com.dertefter.ficus.databinding.FragmentAuthBinding
-import com.dertefter.ficus.databinding.FragmentTimetableBinding
-import com.dertefter.ficus.view.adapters.timetableViewPagerAdapter
 import com.dertefter.ficus.viewmodel.stateFlow.StateFlowViewModel
-import com.dertefter.ficus.viewmodel.timetable.TimetableViewModel
-import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
-import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,8 +34,6 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
                 if (it.isAuthrized == true){
                     withContext(Dispatchers.Main){
                         binding.progressBar.visibility = View.GONE
-                        val timetableViewModel = ViewModelProvider(requireActivity())[TimetableViewModel::class.java]
-                        timetableViewModel.clearData()
                     }
                     requireActivity().onBackPressedDispatcher.onBackPressed()
 

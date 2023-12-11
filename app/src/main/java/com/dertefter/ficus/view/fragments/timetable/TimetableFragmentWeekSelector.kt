@@ -1,6 +1,5 @@
 package com.dertefter.ficus.view.fragments.timetable
 
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,11 +11,10 @@ import com.dertefter.ficus.R
 import com.dertefter.ficus.data.Status
 import com.dertefter.ficus.data.errors.Error
 import com.dertefter.ficus.data.timetable.Week
-import com.dertefter.ficus.databinding.FragmentTimetableBinding
-import com.dertefter.ficus.repositoty.local.AppPreferences
-import com.dertefter.ficus.view.adapters.timetableViewPagerAdapter
+import com.dertefter.ficus.databinding.FragmentTimetableWeekSelectorBinding
+import com.dertefter.ficus.view.adapters.TimetableViewPagerAdapter
 import com.dertefter.ficus.viewmodel.stateFlow.StateFlowViewModel
-import com.dertefter.ficus.viewmodel.timetable.TimetableViewModel
+import com.dertefter.ficus.viewmodel.timetable.TimetableFragmentWeekSelectorViewModel
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
@@ -24,27 +22,27 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 
 
-class TimetableFragment : Fragment(R.layout.fragment_timetable) {
+class TimetableFragmentWeekSelector : Fragment(R.layout.fragment_timetable_week_selector) {
 
     lateinit var stateFlowViewModel: StateFlowViewModel
-    lateinit var timetableViewModel: TimetableViewModel
-    var binding: FragmentTimetableBinding? = null
+    lateinit var timetableViewModel: TimetableFragmentWeekSelectorViewModel
+    var binding: FragmentTimetableWeekSelectorBinding? = null
     var currentWeek: Int = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentTimetableBinding.bind(view)
-        timetableViewModel = ViewModelProvider(requireActivity())[TimetableViewModel::class.java]
+        binding = FragmentTimetableWeekSelectorBinding.bind(view)
+        timetableViewModel = ViewModelProvider(this)[TimetableFragmentWeekSelectorViewModel::class.java]
+        timetableViewModel.initWeekDao(requireActivity().application)
         stateFlowViewModel = ViewModelProvider(requireActivity())[StateFlowViewModel::class.java]
         binding?.todayWeekFab?.hide()
-        setupAppbar()
-        observeGroupData()
         observeUiState()
-        timetableViewModel.getGroup()
+        observeGetPosts()
     }
 
 
     fun setupAppbar(title: String = "Расписание занятий", subtitle: String = ""){
+        binding?.progressBar?.visibility = View.GONE
         binding?.appBarLayout?.statusBarForeground = MaterialShapeDrawable.createWithElevationOverlay(context)
         binding?.topAppBar?.title = title
         binding?.topAppBar?.subtitle = subtitle
@@ -63,11 +61,11 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
         val viewPager = binding?.timetablePager
         val tabLayout = binding?.weeksTabLayout
         if (viewPager?.adapter == null){
-            val adapter = timetableViewPagerAdapter(childFragmentManager, lifecycle)
+            val adapter = TimetableViewPagerAdapter(childFragmentManager, lifecycle)
             viewPager?.adapter = adapter
             adapter.setWeeks(weeks)
         }else{
-            val adapter = viewPager.adapter as timetableViewPagerAdapter
+            val adapter = viewPager.adapter as TimetableViewPagerAdapter
             adapter.setWeeks(weeks)
         }
 
@@ -96,9 +94,9 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
     }
 
     private fun updateWeeks(weeks: List<Week>?){
-        if (weeks != null && weeks.isNotEmpty()){
+        if (!weeks.isNullOrEmpty()){
+            Log.e("TimetableFragmentWeekSelector", "updateWeeks: $weeks")
             setupViewPagerAndTabs(weeks)
-            timetableViewModel.weeksLiveData.removeObservers(viewLifecycleOwner)
         }
     }
 
@@ -112,66 +110,51 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable) {
         }
     }
 
-    private fun observeGroupData() {
-        timetableViewModel.groupLiveData.observe(viewLifecycleOwner) {
-            when (it.status) {
-                Status.LOADING -> {}
-                Status.SUCCESS -> {
-                    if (it.data.isNullOrEmpty()){
-                        binding?.groupNotSet?.visibility = View.VISIBLE
-                        binding?.setGroupButton?.setOnClickListener {
-                            findNavController().navigate(R.id.action_timetableFragment_to_setGroupFragment)
-                        }
-                    }
-                    else{
-                        if (it.data != "individual"){
-                            setupAppbar(it.data)
-                        }
-                        binding?.groupNotSet?.visibility = View.GONE
-                        observeGetPosts()
-
-                        if (binding?.weeksTabLayout?.tabCount == 0){
+    private fun observeUiState() {
+        lifecycleScope.launch {
+            stateFlowViewModel.uiState.collect{
+                if (it.timetableData == null){
+                    stateFlowViewModel.updateTimetableData()
+                }else{
+                    if (it.timetableData?.group.isNullOrEmpty() || it.timetableData?.groupTitle.isNullOrEmpty()){
+                        showGroupNotSet()
+                    }else{
+                        if (it.isAuthrized == true){
+                            setupAppbar(it.timetableData?.groupTitle!!, it.timetableData?.group!!)
+                            timetableViewModel = ViewModelProvider(this@TimetableFragmentWeekSelector)[TimetableFragmentWeekSelectorViewModel::class.java]
+                            timetableViewModel.initWeekDao(requireActivity().application)
+                            timetableViewModel.getWeekList()
+                        }else{
+                            setupAppbar(it.timetableData?.groupTitle!!)
+                            timetableViewModel = ViewModelProvider(this@TimetableFragmentWeekSelector)[TimetableFragmentWeekSelectorViewModel::class.java]
+                            timetableViewModel.initWeekDao(requireActivity().application)
                             timetableViewModel.getWeekList()
                         }
 
                     }
                 }
-                Status.ERROR -> {}
             }
         }
     }
 
-    private fun observeUiState() {
-        lifecycleScope.launch {
-            stateFlowViewModel.uiState.collect{
-                if (it.isAuthrized == true){
-                    if (it.User == null){
-                        stateFlowViewModel.updateUserData()
-                    }else{
-                        if (it.User!!.customGroupTitle != null){
-                            setupAppbar(it.User!!.customGroupTitle!!)
-                        }else{
-                            setupAppbar(it.User!!.groupTitle, "Индивидуальное расписание")
-                        }
-
-                    }
-                    timetableViewModel.getWeekList()
-                }else{
-
-                }
-            }
+    private fun showGroupNotSet() {
+        setupAppbar("Расписание занятий")
+        binding?.groupNotSet?.visibility = View.VISIBLE
+        binding?.setGroupButton?.setOnClickListener {
+            findNavController().navigate(R.id.action_timetableFragment_to_setGroupFragment)
         }
     }
 
     private fun onError(error: Error?) {
-        //TODO
+        binding?.progressBar?.visibility = View.GONE
     }
     private fun onSuccess(data: List<Week>?) {
+        binding?.progressBar?.visibility = View.GONE
         updateWeeks(data)
     }
 
     private fun onLoading() {
-        //TODO
+        binding?.progressBar?.visibility = View.VISIBLE
     }
 
 }

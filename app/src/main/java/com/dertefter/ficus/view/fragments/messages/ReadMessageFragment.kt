@@ -1,4 +1,4 @@
-package com.dertefter.ficus.view.fragments.news
+package com.dertefter.ficus.view.fragments.messages
 
 import android.content.Context
 import android.content.Intent
@@ -14,72 +14,36 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.transition.TransitionInflater
 import com.dertefter.ficus.R
 import com.dertefter.ficus.data.Status
+import com.dertefter.ficus.data.errors.Error
 import com.dertefter.ficus.data.news.NewsContent
+import com.dertefter.ficus.databinding.FragmentReadMessageBinding
 import com.dertefter.ficus.databinding.FragmentReadNewsBinding
 import com.dertefter.ficus.utils.ImageGetter
 import com.dertefter.ficus.utils.ViewUtils
+import com.dertefter.ficus.viewmodel.messages.ReadMessageViewModel
 import com.dertefter.ficus.viewmodel.news.ReadNewsViewModel
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import com.squareup.picasso.Picasso
 
 
-class ReadNewsFragment : Fragment() {
+class ReadMessageFragment : Fragment(R.layout.fragment_read_message) {
 
-    var binding: FragmentReadNewsBinding? = null
-    private lateinit var transitionImageName: String
-    private lateinit var transitionTitleName: String
-    private lateinit var readNewsViewModel: ReadNewsViewModel
+    var binding: FragmentReadMessageBinding? = null
+    lateinit var readMessageViewModel: ReadMessageViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-
-
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        var color = ReadNewsFragmentArgs.fromBundle(requireArguments()).color
-        val context: Context = DynamicColors.wrapContextIfAvailable(
-            requireContext(),
-            DynamicColorsOptions.Builder()
-                .setContentBasedSource(color)
-                .build()
-        )
-
-        return layoutInflater.cloneInContext(context).inflate(R.layout.fragment_read_news, container, false)
-    }
-    fun getNews(newsid: String){
-        readNewsViewModel.getNewsMore(newsid)
-    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentReadNewsBinding.bind(view)
-
-        sharedElementReturnTransition = TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-        sharedElementEnterTransition = TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-
-        transitionImageName = ReadNewsFragmentArgs.fromBundle(requireArguments()).transitionImageName
-        val newsid = ReadNewsFragmentArgs.fromBundle(requireArguments()).newsid
-
-
-        readNewsViewModel = ViewModelProvider(this)[ReadNewsViewModel::class.java]
-        observeGetPosts()
-        getNews(newsid)
-
+        binding = FragmentReadMessageBinding.bind(view)
+        readMessageViewModel = ViewModelProvider(this)[ReadMessageViewModel::class.java]
+        getMessageContent()
         setupAppBar()
         setupFab()
         setupNestedScrollView()
-        setupTransitionNames()
 
-    }
-
-
-    private fun setupTransitionNames() {
-        binding?.root?.transitionName = transitionImageName
     }
 
     private fun setupNestedScrollView() {
@@ -92,9 +56,8 @@ class ReadNewsFragment : Fragment() {
         }
     }
 
-    private fun showNewsContent(data: NewsContent){
-        displayHtml(data.contentHtml, binding?.newsContentView!!)
-        displayHtml(data.contactsHtml, binding?.newsContactsView!!)
+    private fun showMessageContent(data: String){
+        displayHtml(data, binding?.messageContentView!!)
     }
 
     fun setupFab(){
@@ -105,53 +68,44 @@ class ReadNewsFragment : Fragment() {
         binding?.scrollUpFab?.hide()
     }
     fun setupAppBar(){
-        val imageUrl = ReadNewsFragmentArgs.fromBundle(requireArguments()).imageUrl
-        if (imageUrl != null){
-            Picasso.get().load(imageUrl).resize(600,400).centerCrop().into(binding?.backgroundNews)
-        }else{
-            binding?.backgroundNews?.visibility = View.GONE
-        }
+        val message = ReadMessageFragmentArgs.fromBundle(requireArguments()).message
         binding?.backButton?.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
-        binding?.shareButton?.setOnClickListener {
-            val sendIntent: Intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, "https://nstu.ru/news/news_more?idnews=${ReadNewsFragmentArgs.fromBundle(requireArguments()).newsid}")
-                type = "text/plain"
-            }
-
-            val shareIntent = Intent.createChooser(sendIntent, null)
-            startActivity(shareIntent)
-        }
-        binding?.title?.text = ReadNewsFragmentArgs.fromBundle(requireArguments()).title
+        binding?.title?.text = message.title
     }
 
     private fun observeGetPosts() {
-        readNewsViewModel.newsLiveData.observe(viewLifecycleOwner) {
+        readMessageViewModel.liveData.observe(viewLifecycleOwner) {
             when (it.status) {
                 Status.LOADING -> onLoading()
                 Status.SUCCESS -> onSuccess(it.data)
-                Status.ERROR -> onError(it.data)
+                Status.ERROR -> onError(it.error)
             }
         }
     }
 
-    private fun onError(error: NewsContent?) {
+    private fun onError(error: Error?) {
         ViewUtils().hideView(binding?.progressBar!!)
         ViewUtils().hideView(binding?.nestedScrollView!!)
         binding?.errorView?.visibility = View.VISIBLE
         binding?.retryButton?.setOnClickListener {
-            getNews(ReadNewsFragmentArgs.fromBundle(requireArguments()).newsid)
+            getMessageContent()
         }
     }
 
-    private fun onSuccess(data: NewsContent?) {
+    fun getMessageContent(){
+        val message = ReadMessageFragmentArgs.fromBundle(requireArguments()).message
+        readMessageViewModel.loadMessage(message.mes_id)
+        observeGetPosts()
+    }
+
+    private fun onSuccess(data: String?) {
         if (data == null){
             onError(null)
             return
         }
-        showNewsContent(data)
+        showMessageContent(data)
         ViewUtils().hideView(binding?.progressBar!!)
         ViewUtils().showView(binding?.nestedScrollView!!)
         binding?.errorView?.visibility = View.GONE

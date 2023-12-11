@@ -18,7 +18,10 @@ import com.dertefter.ficus.databinding.FragmentSearchGroupBinding
 import com.dertefter.ficus.view.adapters.GroupListAdapter
 import com.dertefter.ficus.viewmodel.stateFlow.StateFlowViewModel
 import com.dertefter.ficus.viewmodel.timetable.SearchGroupViewModel
+import com.google.android.material.shape.MaterialShapeDrawable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SearchGroupFragment : Fragment(R.layout.fragment_search_group) {
     var binding: FragmentSearchGroupBinding? = null
@@ -43,10 +46,9 @@ class SearchGroupFragment : Fragment(R.layout.fragment_search_group) {
     fun setupRecyclerView(){
         val recyclerView: RecyclerView = binding?.recyclerView!!
         recyclerView.adapter = groupListAdapter
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        //val itemDecorator = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-        //itemDecorator.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
-        //recyclerView.addItemDecoration(itemDecorator)
+
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+
     }
     fun setupSearchbar(){
         binding?.searchEditText?.doOnTextChanged { text, start, before, count ->
@@ -55,14 +57,14 @@ class SearchGroupFragment : Fragment(R.layout.fragment_search_group) {
     }
 
     fun setupToolbar(){
+        binding?.appBarLayout?.statusBarForeground = MaterialShapeDrawable.createWithElevationOverlay(context)
         binding?.topAppBar?.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 
-    fun setGroup(group: String){
-        searchGroupViewModel.setGroup(group)
-        stateFlowViewModel.updateUserData(customGroup = group)
+    fun setGroup(group: String, individualGroupTitle: String? = null){
+        stateFlowViewModel.setGroup(group, individualGroupTitle)
         requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
@@ -75,7 +77,10 @@ class SearchGroupFragment : Fragment(R.layout.fragment_search_group) {
         lifecycleScope.launch {
             stateFlowViewModel.uiState.collect{
                 if (it.isAuthrized == true){
-                    groupListAdapter.individualEnabled = true
+                    stateFlowViewModel.updateUserData()
+                }
+                if (it.User != null && it.User?.groupTitle != null){
+                    groupListAdapter.individualGroupTitle = it.User?.groupTitle
                 }
             }
         }
